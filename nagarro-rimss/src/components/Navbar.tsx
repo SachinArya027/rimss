@@ -28,7 +28,7 @@ const Navbar = () => {
             </Link>
           </Flex>
 
-          <Flex display={{ base: 'none', md: 'flex' }} alignItems="center" flex={1} mx={6}>
+          <Flex display={{ base: 'none', lg: 'flex' }} alignItems="center" flex={1} mx={6}>
             <ChakraStack direction="row" gap={8} mr={6}>
               <Link href="/" color="gray.700" _hover={{ color: 'blue.500' }}>Home</Link>
               <Link href="/search?category=men" color="gray.700" _hover={{ color: 'blue.500' }}>Men</Link>
@@ -43,7 +43,7 @@ const Navbar = () => {
             </Box>
           </Flex>
 
-          <ChakraStack direction="row" gap={4} display={{ base: 'none', md: 'flex' }}>
+          <ChakraStack direction="row" gap={4} display={{ base: 'none', lg: 'flex' }}>
             {currentUser ? (
               <UserProfile />
             ) : (
@@ -54,11 +54,11 @@ const Navbar = () => {
             <Button leftIcon={<ChevronRightIcon />}>Cart (0)</Button>
           </ChakraStack>
 
-          <Flex display={{ base: 'flex', md: 'none' }} alignItems="center" gap={2}>
-            <Box display={{ base: 'block', sm: 'block', md: 'none' }} width={{ base: "120px", sm: "160px" }}>
+          <Flex display={{ base: 'flex', lg: 'none' }} alignItems="center" gap={2}>
+            <Box display={{ base: 'block', sm: 'block', lg: 'none' }} width={{ base: "240px", sm: "320px" }}>
               <SearchBar 
                 onSearch={handleSearch} 
-                size="sm" 
+                size="md" 
                 placeholder="Search..."
                 variant="filled"
               />
