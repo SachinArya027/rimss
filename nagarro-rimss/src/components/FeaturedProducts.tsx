@@ -63,7 +63,7 @@ const FeaturedProducts = () => {
     <Box py={12} bg="white">
       <Container maxW="container.xl">
         <Heading mb={8} textAlign="center" fontSize="3xl">Featured Products</Heading>
-        <ChakraGrid templateColumns={{ base: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }} gap={8}>
+        <ChakraGrid templateColumns={{ base: '1fr', sm: '1fr', md: 'repeat(2, 1fr)', lg: 'repeat(4, 1fr)' }} gap={8}>
           {products.map((product) => (
             <ChakraVStack 
               key={product.id} 
@@ -82,7 +82,7 @@ const FeaturedProducts = () => {
             >
               <Box position="relative" width="100%">
                 <Image 
-                  src={product.image} 
+                  src={product.images && product.images.length > 0 ? product.images[0] : ''} 
                   alt={product.name} 
                   borderRadius="lg"
                   width="100%"

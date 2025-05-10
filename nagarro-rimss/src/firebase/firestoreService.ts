@@ -15,7 +15,7 @@ export interface Product {
   id: string;
   name: string;
   price: number;
-  image: string;
+  images: string[];
   isFeatured: boolean;
   discount?: number;
   category?: string;
@@ -29,7 +29,7 @@ export interface Offer {
   id: string;
   title: string;
   description: string;
-  image: string;
+  images: string[];
   discount: string;
   validUntil: string;
   category?: string;
@@ -44,12 +44,13 @@ const productConverter = {
       id: snapshot.id,
       name: data.name,
       price: data.price,
-      image: data.image,
+      images: data.images || [data.image], // Handle both new and old format
       isFeatured: data.isFeatured,
       discount: data.discount,
       category: data.category,
       description: data.description,
-      stock: data.stock
+      stock: data.stock,
+      color: data.color
     };
   }
 };
@@ -62,7 +63,7 @@ const offerConverter = {
       id: snapshot.id,
       title: data.title,
       description: data.description,
-      image: data.image,
+      images: data.images || [data.image], // Handle both new and old format
       discount: data.discount,
       validUntil: data.validUntil,
       category: data.category,

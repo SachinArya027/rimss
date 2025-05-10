@@ -311,7 +311,7 @@ const SearchPage = () => {
   );
 
   return (
-    <Box py={8} bg="gray.50" minH="calc(100vh - 64px)">
+    <Box pt="72px" pb={8} bg="gray.50" minH="calc(100vh - 64px)">
       <Container maxW="container.xl">
         <Box mb={6}>
           <Heading size="lg">

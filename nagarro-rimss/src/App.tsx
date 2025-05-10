@@ -34,7 +34,7 @@ function App() {
             <Navbar />
             <Routes>
               <Route path="/" element={
-                <Box as="main">
+                <Box as="main" pt="64px">
                   <HeroCarousel />
                   <Box py={8}>
                     <FeaturedProducts />

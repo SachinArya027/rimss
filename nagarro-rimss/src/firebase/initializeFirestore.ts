@@ -6,7 +6,7 @@ const sampleProducts = [
   {
     name: "Classic Moleskin Jacket",
     price: 199.99,
-    image: "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&w=500&h=500",
+    images: ["https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&w=500&h=500"],
     isFeatured: true,
     discount: 20,
     category: "men",
@@ -17,7 +17,7 @@ const sampleProducts = [
   {
     name: "Corduroy Trousers",
     price: 89.99,
-    image: "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?auto=format&fit=crop&w=500&h=500",
+    images: ["https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?auto=format&fit=crop&w=500&h=500"],
     isFeatured: true,
     category: "men",
     description: "Comfortable and stylish corduroy trousers that work well for casual and semi-formal occasions.",
@@ -27,18 +27,18 @@ const sampleProducts = [
   {
     name: "Tattersall Shirt",
     price: 79.99,
-    image: "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?auto=format&fit=crop&w=500&h=500",
+    images: ["https://images.unsplash.com/photo-1596755094514-f87e34085b2c?auto=format&fit=crop&w=500&h=500"],
     isFeatured: true,
     discount: 15,
     category: "men",
-    description: "A classic tattersall check shirt made from premium cotton for comfort and durability.",
+    description: "A classic tattersall check shirt made from premium cotton. Versatile and comfortable.",
     stock: 30,
     color: "white"
   },
   {
     name: "Wool Sweater",
     price: 129.99,
-    image: "https://images.unsplash.com/photo-1576871337622-98d48d1cf531?auto=format&fit=crop&w=500&h=500",
+    images: ["https://images.unsplash.com/photo-1576871337622-98d48d1cf531?auto=format&fit=crop&w=500&h=500"],
     isFeatured: true,
     category: "men",
     description: "A warm and comfortable wool sweater, perfect for layering during colder months.",
@@ -47,8 +47,8 @@ const sampleProducts = [
   },
   {
     name: "Silk Blouse",
-    price: 119.99,
-    image: "https://images.unsplash.com/photo-1551489186-cf8726f514f8?auto=format&fit=crop&w=500&h=500",
+    price: 129.99,
+    images: ["https://images.pexels.com/photos/6311392/pexels-photo-6311392.jpeg?auto=compress&cs=tinysrgb&w=500&h=500"],
     isFeatured: false,
     discount: 10,
     category: "women",
@@ -59,7 +59,7 @@ const sampleProducts = [
   {
     name: "Leather Handbag",
     price: 249.99,
-    image: "https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&w=500&h=500",
+    images: ["https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&w=500&h=500"],
     isFeatured: false,
     category: "accessories",
     description: "A premium leather handbag with multiple compartments and elegant design.",
@@ -69,7 +69,7 @@ const sampleProducts = [
   {
     name: "Cashmere Scarf",
     price: 89.99,
-    image: "https://images.unsplash.com/photo-1520903920243-1d5cdb3840cf?auto=format&fit=crop&w=500&h=500",
+    images: ["https://images.unsplash.com/photo-1668959901722-627e2277f28d?q=80&w=3388&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"],
     isFeatured: false,
     discount: 5,
     category: "accessories",
@@ -80,7 +80,7 @@ const sampleProducts = [
   {
     name: "Linen Dress",
     price: 149.99,
-    image: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?auto=format&fit=crop&w=500&h=500",
+    images: ["https://images.unsplash.com/photo-1595777457583-95e059d581b8?auto=format&fit=crop&w=500&h=500"],
     isFeatured: false,
     category: "women",
     description: "A breezy linen dress perfect for summer days and warm evenings.",
@@ -94,7 +94,7 @@ const sampleOffers = [
   {
     title: "Summer Collection Sale",
     description: "Get up to 50% off on our latest summer collection. Limited time offer!",
-    image: "https://images.unsplash.com/photo-1607083206869-4c7672e72a8a?auto=format&fit=crop&w=800&h=400",
+    images: ["https://images.unsplash.com/photo-1562886877-f12251816e01?auto=format&fit=crop&w=800&h=400"],
     discount: "50% OFF",
     validUntil: "2025-06-15",
     category: "seasonal",
@@ -103,7 +103,7 @@ const sampleOffers = [
   {
     title: "New Season Arrivals",
     description: "Discover our fresh new styles for the upcoming season. Shop now!",
-    image: "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=800&h=400",
+    images: ["https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=800&h=400"],
     discount: "NEW",
     validUntil: "2025-06-20",
     category: "new-arrivals",
@@ -112,7 +112,7 @@ const sampleOffers = [
   {
     title: "Premium Collection",
     description: "Exclusive deals on our premium range. Luxury meets affordability.",
-    image: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=800&h=400",
+    images: ["https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=800&h=400"],
     discount: "30% OFF",
     validUntil: "2025-06-12",
     category: "premium",

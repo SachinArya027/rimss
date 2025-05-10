@@ -84,7 +84,7 @@ const LatestOffers = () => {
             >
               <Box position="relative">
                 <Image 
-                  src={offer.image} 
+                  src={offer.images[0]} 
                   alt={offer.title} 
                   width="100%"
                   height="200px"

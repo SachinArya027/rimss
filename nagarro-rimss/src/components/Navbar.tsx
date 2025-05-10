@@ -19,7 +19,7 @@ const Navbar = () => {
   };
 
   return (
-    <Box as="nav" bg="white" boxShadow="sm" position="sticky" top={0} zIndex={1000}>
+    <Box as="nav" bg="white" boxShadow="md" position="fixed" width="100%" top={0} zIndex={1000}>
       <Container maxW="container.xl">
         <Flex h={16} alignItems="center" justifyContent="space-between">
           <Flex alignItems="center" mr={{ base: 2, md: 0 }}>

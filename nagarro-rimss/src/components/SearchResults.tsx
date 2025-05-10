@@ -97,7 +97,7 @@ const SearchResults = ({ products, loading, searchTerm }: SearchResultsProps) =>
         </Flex>
       </Flex>
 
-      <SimpleGrid columns={{ base: 1, sm: 2, md: 3, lg: 4 }} spacing={6}>
+      <SimpleGrid columns={{ base: 1, sm: 1, md: 2, lg: 3 }} spacing={6}>
         {sortedProducts.map((product) => (
           <VStack 
             key={product.id} 
@@ -117,7 +117,7 @@ const SearchResults = ({ products, loading, searchTerm }: SearchResultsProps) =>
           >
             <Box position="relative" width="100%">
               <Image 
-                src={product.image} 
+                src={product.images && product.images.length > 0 ? product.images[0] : ''} 
                 alt={product.name} 
                 borderRadius="lg"
                 width="100%"
@@ -136,20 +136,6 @@ const SearchResults = ({ products, loading, searchTerm }: SearchResultsProps) =>
                   borderRadius="md"
                 >
                   {product.discount}% OFF
-                </Badge>
-              )}
-              {product.color && (
-                <Badge
-                  position="absolute"
-                  top={2}
-                  left={2}
-                  colorScheme="blue"
-                  fontSize="sm"
-                  px={2}
-                  py={1}
-                  borderRadius="md"
-                >
-                  {product.color}
                 </Badge>
               )}
             </Box>
