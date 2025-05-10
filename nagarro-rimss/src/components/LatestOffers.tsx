@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Box, Container, Heading, SimpleGrid as ChakraGrid, Text, VStack as ChakraVStack, Image, Button, Spinner, Center, useToast } from '@chakra-ui/react';
 import { ChevronRightIcon } from '@chakra-ui/icons';
+import { useNavigate } from 'react-router-dom';
 import { getActiveOffers } from '../firebase/firestoreService';
 import type { Offer } from '../firebase/firestoreService';
 
@@ -9,6 +10,17 @@ const LatestOffers = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const toast = useToast();
+  const navigate = useNavigate();
+  
+  // Handle clicking on an offer
+  const handleOfferClick = (offer: Offer) => {
+    // Navigate to search page with category filter if available
+    if (offer.category) {
+      navigate(`/search?category=${encodeURIComponent(offer.category)}`);
+    } else {
+      navigate('/search');
+    }
+  };
 
   useEffect(() => {
     const loadOffers = async () => {
@@ -82,7 +94,7 @@ const LatestOffers = () => {
               }}
               transition="all 0.2s"
             >
-              <Box position="relative">
+              <Box position="relative" cursor="pointer" onClick={() => handleOfferClick(offer)}>
                 <Image 
                   src={offer.images[0]} 
                   alt={offer.title} 
@@ -106,14 +118,18 @@ const LatestOffers = () => {
                 </Box>
               </Box>
               <ChakraVStack p={6} gap={4} flex={1}>
-                <ChakraVStack alignItems="start" gap={2} flex={1}>
+                <ChakraVStack alignItems="start" gap={2} flex={1} cursor="pointer" onClick={() => handleOfferClick(offer)}>
                   <Heading size="md">{offer.title}</Heading>
                   <Text color="gray.600">{offer.description}</Text>
                   <Text color="gray.500" fontSize="sm" mt="auto">
                     Valid until {new Date(offer.validUntil).toLocaleDateString()}
                   </Text>
                 </ChakraVStack>
-                <Button width="100%" rightIcon={<ChevronRightIcon />}>
+                <Button 
+                  width="100%" 
+                  rightIcon={<ChevronRightIcon />}
+                  onClick={() => handleOfferClick(offer)}
+                >
                   Shop Now
                 </Button>
               </ChakraVStack>

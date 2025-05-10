@@ -11,10 +11,14 @@ import {
   Center,
   Flex,
   Select,
-  useColorModeValue
+  useColorModeValue,
+  Link,
+  useToast
 } from '@chakra-ui/react';
 import { useState } from 'react';
+import { Link as RouterLink } from 'react-router-dom';
 import type { Product } from '../firebase/firestoreService';
+import { useCart } from '../contexts/useCart';
 
 interface SearchResultsProps {
   products: Product[];
@@ -28,6 +32,20 @@ const SearchResults = ({ products, loading, searchTerm }: SearchResultsProps) =>
   const [sortBy, setSortBy] = useState<SortOption>('name_asc');
   const bgColor = useColorModeValue('white', 'gray.800');
   const borderColor = useColorModeValue('gray.200', 'gray.700');
+  const { addToCart } = useCart();
+  const toast = useToast();
+  
+  // Handle adding product to cart
+  const handleAddToCart = (product: Product) => {
+    addToCart(product, 1);
+    toast({
+      title: 'Added to cart',
+      description: `${product.name} added to your cart`,
+      status: 'success',
+      duration: 3000,
+      isClosable: true,
+    });
+  };
 
   // Handle sort change
   const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -116,14 +134,15 @@ const SearchResults = ({ products, loading, searchTerm }: SearchResultsProps) =>
             transition="all 0.2s"
           >
             <Box position="relative" width="100%">
-              <Image 
-                src={product.images && product.images.length > 0 ? product.images[0] : ''} 
-                alt={product.name} 
-                borderRadius="lg"
-                width="100%"
-                height="250px"
-                objectFit="cover"
-              />
+              <Link as={RouterLink} to={`/product/${product.id}`} width="100%" display="block">
+                <Image 
+                  src={product.images && product.images.length > 0 ? product.images[0] : ''} 
+                  alt={product.name} 
+                  borderRadius="lg"
+                  width="100%"
+                  height="250px"
+                  objectFit="cover"
+                />
               {product.discount && (
                 <Badge
                   position="absolute"
@@ -138,8 +157,11 @@ const SearchResults = ({ products, loading, searchTerm }: SearchResultsProps) =>
                   {product.discount}% OFF
                 </Badge>
               )}
+              </Link>
             </Box>
-            <Text fontWeight="bold" fontSize="lg" mt={2}>{product.name}</Text>
+            <Link as={RouterLink} to={`/product/${product.id}`} _hover={{ textDecoration: 'none' }}>
+              <Text fontWeight="bold" fontSize="lg" mt={2}>{product.name}</Text>
+            </Link>
             <Text color="gray.600" fontSize="sm" noOfLines={2}>
               {product.description || 'No description available'}
             </Text>
@@ -156,7 +178,14 @@ const SearchResults = ({ products, loading, searchTerm }: SearchResultsProps) =>
                 {product.category}
               </Badge>
             </Flex>
-            <Button width="100%" mt={2} colorScheme="blue">Add to Cart</Button>
+            <Button 
+              width="100%" 
+              mt={2} 
+              colorScheme="blue"
+              onClick={() => handleAddToCart(product)}
+            >
+              Add to Cart
+            </Button>
           </VStack>
         ))}
       </SimpleGrid>

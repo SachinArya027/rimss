@@ -1,13 +1,28 @@
 import { useState, useEffect } from 'react';
-import { Box, Container, SimpleGrid as ChakraGrid, Image, Text, Badge, VStack as ChakraVStack, Heading, Button, Spinner, Center, useToast } from '@chakra-ui/react';
+import { Box, Container, SimpleGrid as ChakraGrid, Image, Text, Badge, VStack as ChakraVStack, Heading, Button, Spinner, Center, useToast, Link, Flex } from '@chakra-ui/react';
+import { Link as RouterLink } from 'react-router-dom';
 import { getFeaturedProducts } from '../firebase/firestoreService';
 import type { Product } from '../firebase/firestoreService';
+import { useCart } from '../contexts/useCart';
 
 const FeaturedProducts = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const toast = useToast();
+  const { addToCart } = useCart();
+  
+  // Handle adding product to cart
+  const handleAddToCart = (product: Product) => {
+    addToCart(product, 1);
+    toast({
+      title: 'Added to cart',
+      description: `${product.name} added to your cart`,
+      status: 'success',
+      duration: 3000,
+      isClosable: true,
+    });
+  };
 
   useEffect(() => {
     const loadProducts = async () => {
@@ -81,14 +96,15 @@ const FeaturedProducts = () => {
               transition="all 0.2s"
             >
               <Box position="relative" width="100%">
-                <Image 
-                  src={product.images && product.images.length > 0 ? product.images[0] : ''} 
-                  alt={product.name} 
-                  borderRadius="lg"
-                  width="100%"
-                  height="250px"
-                  objectFit="cover"
-                />
+                <Link as={RouterLink} to={`/product/${product.id}`} width="100%" display="block">
+                  <Image 
+                    src={product.images && product.images.length > 0 ? product.images[0] : ''} 
+                    alt={product.name} 
+                    borderRadius="lg"
+                    width="100%"
+                    height="250px"
+                    objectFit="cover"
+                  />
                 {product.discount && (
                   <Badge
                     position="absolute"
@@ -103,8 +119,11 @@ const FeaturedProducts = () => {
                     {product.discount}% OFF
                   </Badge>
                 )}
+                </Link>
               </Box>
-              <Text fontWeight="bold" fontSize="lg" mt={2}>{product.name}</Text>
+              <Link as={RouterLink} to={`/product/${product.id}`} _hover={{ textDecoration: 'none' }}>
+                <Text fontWeight="bold" fontSize="lg" mt={2}>{product.name}</Text>
+              </Link>
               <Text color="blue.600" fontSize="xl" fontWeight="bold">
                 ${product.price.toFixed(2)}
                 {product.discount && (
@@ -113,7 +132,14 @@ const FeaturedProducts = () => {
                   </Text>
                 )}
               </Text>
-              <Button width="100%" mt={2}>Add to Cart</Button>
+              <Button 
+                width="100%" 
+                mt={2} 
+                colorScheme="blue"
+                onClick={() => handleAddToCart(product)}
+              >
+                Add to Cart
+              </Button>
             </ChakraVStack>
           ))}
         </ChakraGrid>
