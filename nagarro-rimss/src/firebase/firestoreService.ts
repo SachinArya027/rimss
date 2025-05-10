@@ -21,6 +21,7 @@ export interface Product {
   category?: string;
   description?: string;
   stock?: number;
+  color?: string;
 }
 
 // Offer type definition
@@ -75,6 +76,69 @@ export const getProducts = async (): Promise<Product[]> => {
   const productsCollection = collection(db, 'products');
   const productsSnapshot = await getDocs(productsCollection);
   return productsSnapshot.docs.map(doc => productConverter.fromFirestore(doc));
+};
+
+// Search products with filters
+export interface ProductSearchFilters {
+  category?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  discountedOnly?: boolean;
+  searchTerm?: string;
+  color?: string;
+}
+
+export const searchProducts = async (filters: ProductSearchFilters): Promise<Product[]> => {
+  const productsQuery = collection(db, 'products');
+  const constraints = [];
+  
+  // Apply category filter if provided
+  if (filters.category) {
+    constraints.push(where('category', '==', filters.category));
+  }
+  
+  // Apply discounted only filter if true
+  if (filters.discountedOnly) {
+    constraints.push(where('discount', '>', 0));
+  }
+  
+  // We can only use one composite filter in Firestore without creating indexes
+  // So we'll apply the most specific filter in the query and handle the rest in memory
+  let queryWithConstraints;
+  if (constraints.length > 0) {
+    queryWithConstraints = query(productsQuery, ...constraints);
+  } else {
+    queryWithConstraints = query(productsQuery);
+  }
+  
+  const productsSnapshot = await getDocs(queryWithConstraints);
+  let products = productsSnapshot.docs.map(doc => productConverter.fromFirestore(doc));
+  
+  // Apply remaining filters in memory
+  if (filters.minPrice !== undefined) {
+    products = products.filter(product => product.price >= filters.minPrice!);
+  }
+  
+  if (filters.maxPrice !== undefined) {
+    products = products.filter(product => product.price <= filters.maxPrice!);
+  }
+  
+  if (filters.searchTerm) {
+    const searchTermLower = filters.searchTerm.toLowerCase();
+    products = products.filter(product => 
+      product.name.toLowerCase().includes(searchTermLower) ||
+      (product.description && product.description.toLowerCase().includes(searchTermLower))
+    );
+  }
+  
+  if (filters.color) {
+    const colorLower = filters.color.toLowerCase();
+    products = products.filter(product => 
+      product.color?.toLowerCase() === colorLower
+    );
+  }
+  
+  return products;
 };
 
 // Get featured products

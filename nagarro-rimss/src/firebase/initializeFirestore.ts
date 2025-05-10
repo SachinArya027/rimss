@@ -11,7 +11,8 @@ const sampleProducts = [
     discount: 20,
     category: "men",
     description: "A timeless moleskin jacket that combines durability with style. Perfect for cooler days.",
-    stock: 15
+    stock: 15,
+    color: "brown"
   },
   {
     name: "Corduroy Trousers",
@@ -20,7 +21,8 @@ const sampleProducts = [
     isFeatured: true,
     category: "men",
     description: "Comfortable and stylish corduroy trousers that work well for casual and semi-formal occasions.",
-    stock: 25
+    stock: 25,
+    color: "blue"
   },
   {
     name: "Tattersall Shirt",
@@ -30,7 +32,8 @@ const sampleProducts = [
     discount: 15,
     category: "men",
     description: "A classic tattersall check shirt made from premium cotton for comfort and durability.",
-    stock: 30
+    stock: 30,
+    color: "white"
   },
   {
     name: "Wool Sweater",
@@ -39,7 +42,8 @@ const sampleProducts = [
     isFeatured: true,
     category: "men",
     description: "A warm and comfortable wool sweater, perfect for layering during colder months.",
-    stock: 20
+    stock: 20,
+    color: "grey"
   },
   {
     name: "Silk Blouse",
@@ -49,7 +53,8 @@ const sampleProducts = [
     discount: 10,
     category: "women",
     description: "An elegant silk blouse that transitions seamlessly from office to evening wear.",
-    stock: 18
+    stock: 18,
+    color: "red"
   },
   {
     name: "Leather Handbag",
@@ -58,7 +63,29 @@ const sampleProducts = [
     isFeatured: false,
     category: "accessories",
     description: "A premium leather handbag with multiple compartments and elegant design.",
-    stock: 12
+    stock: 12,
+    color: "black"
+  },
+  {
+    name: "Cashmere Scarf",
+    price: 89.99,
+    image: "https://images.unsplash.com/photo-1520903920243-1d5cdb3840cf?auto=format&fit=crop&w=500&h=500",
+    isFeatured: false,
+    discount: 5,
+    category: "accessories",
+    description: "A luxuriously soft cashmere scarf that adds elegance to any outfit.",
+    stock: 22,
+    color: "green"
+  },
+  {
+    name: "Linen Dress",
+    price: 149.99,
+    image: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?auto=format&fit=crop&w=500&h=500",
+    isFeatured: false,
+    category: "women",
+    description: "A breezy linen dress perfect for summer days and warm evenings.",
+    stock: 15,
+    color: "white"
   }
 ];
 

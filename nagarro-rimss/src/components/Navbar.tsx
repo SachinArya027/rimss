@@ -3,28 +3,43 @@ import { HamburgerIcon, ChevronRightIcon } from '@chakra-ui/icons';
 import { useAuth } from '../contexts/useAuth';
 import LoginModal from './LoginModal';
 import UserProfile from './UserProfile';
+import SearchBar from './SearchBar';
+import { useNavigate } from 'react-router-dom';
 
 const Navbar = () => {
   const { isOpen: isMenuOpen, onOpen: onMenuOpen, onClose: onMenuClose } = useDisclosure();
   const { isOpen: isLoginOpen, onOpen: onLoginOpen, onClose: onLoginClose } = useDisclosure();
   const { currentUser } = useAuth();
+  const navigate = useNavigate();
+  
+  // Handle search submission
+  const handleSearch = (searchTerm: string) => {
+    navigate(`/search?q=${encodeURIComponent(searchTerm)}`);
+  };
 
   return (
     <Box as="nav" bg="white" boxShadow="sm" position="sticky" top={0} zIndex={1000}>
       <Container maxW="container.xl">
         <Flex h={16} alignItems="center" justifyContent="space-between">
-          <Flex alignItems="center">
-            <Text fontSize="2xl" fontWeight="bold" color="blue.600">RIMSS</Text>
+          <Flex alignItems="center" mr={{ base: 2, md: 0 }}>
+            <Link href="/" _hover={{ textDecoration: 'none' }}>
+              <Text fontSize={{ base: "xl", md: "2xl" }} fontWeight="bold" color="blue.600">RIMSS</Text>
+            </Link>
           </Flex>
 
-          <Flex display={{ base: 'none', md: 'flex' }} alignItems="center">
-            <ChakraStack direction="row" gap={8}>
-              <Link href="#" color="gray.700" _hover={{ color: 'blue.500' }}>Home</Link>
-              <Link href="#" color="gray.700" _hover={{ color: 'blue.500' }}>Men</Link>
-              <Link href="#" color="gray.700" _hover={{ color: 'blue.500' }}>Women</Link>
-              <Link href="#" color="gray.700" _hover={{ color: 'blue.500' }}>Children</Link>
-              <Link href="#" color="gray.700" _hover={{ color: 'blue.500' }}>Sale</Link>
+          <Flex display={{ base: 'none', md: 'flex' }} alignItems="center" flex={1} mx={6}>
+            <ChakraStack direction="row" gap={8} mr={6}>
+              <Link href="/" color="gray.700" _hover={{ color: 'blue.500' }}>Home</Link>
+              <Link href="/search?category=men" color="gray.700" _hover={{ color: 'blue.500' }}>Men</Link>
+              <Link href="/search?category=women" color="gray.700" _hover={{ color: 'blue.500' }}>Women</Link>
+              <Link href="/search?category=accessories" color="gray.700" _hover={{ color: 'blue.500' }}>Accessories</Link>
+              <Link href="/search?discounted=true" color="gray.700" _hover={{ color: 'blue.500' }}>Sale</Link>
             </ChakraStack>
+            
+            {/* Desktop Search Bar */}
+            <Box flex={1} maxW="400px">
+              <SearchBar onSearch={handleSearch} />
+            </Box>
           </Flex>
 
           <ChakraStack direction="row" gap={4} display={{ base: 'none', md: 'flex' }}>
@@ -38,13 +53,23 @@ const Navbar = () => {
             <Button leftIcon={<ChevronRightIcon />}>Cart (0)</Button>
           </ChakraStack>
 
-          <IconButton
-            display={{ base: 'flex', md: 'none' }}
-            onClick={onMenuOpen}
-            icon={<HamburgerIcon />}
-            variant="ghost"
-            aria-label="Open Menu"
-          />
+          <Flex display={{ base: 'flex', md: 'none' }} alignItems="center" gap={2}>
+            <Box display={{ base: 'block', sm: 'block', md: 'none' }} width={{ base: "120px", sm: "160px" }}>
+              <SearchBar 
+                onSearch={handleSearch} 
+                size="sm" 
+                placeholder="Search..."
+                variant="filled"
+              />
+            </Box>
+            <IconButton
+              onClick={onMenuOpen}
+              icon={<HamburgerIcon />}
+              variant="ghost"
+              aria-label="Open Menu"
+              ml="auto"
+            />
+          </Flex>
         </Flex>
       </Container>
 
@@ -56,11 +81,12 @@ const Navbar = () => {
           <DrawerHeader borderBottomWidth="1px">Menu</DrawerHeader>
           <DrawerBody>
             <ChakraStack spacing={4}>
-              <Link href="#" py={2} color="gray.700">Home</Link>
-              <Link href="#" py={2} color="gray.700">Men</Link>
-              <Link href="#" py={2} color="gray.700">Women</Link>
-              <Link href="#" py={2} color="gray.700">Children</Link>
-              <Link href="#" py={2} color="gray.700">Sale</Link>
+              <Link href="/" py={2} color="gray.700">Home</Link>
+              <Link href="/search?category=men" py={2} color="gray.700">Men</Link>
+              <Link href="/search?category=women" py={2} color="gray.700">Women</Link>
+              <Link href="/search?category=accessories" py={2} color="gray.700">Accessories</Link>
+              <Link href="/search?discounted=true" py={2} color="gray.700">Sale</Link>
+              <Link href="/search" py={2} color="gray.700">Search Products</Link>
               {currentUser ? (
                 <Button variant="outline" w="full" onClick={onMenuClose}>
                   My Profile
