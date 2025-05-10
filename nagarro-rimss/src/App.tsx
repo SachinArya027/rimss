@@ -1,9 +1,10 @@
-import { ChakraProvider, Box, extendTheme } from '@chakra-ui/react'
+import { ChakraProvider, Box, extendTheme, Container } from '@chakra-ui/react'
 import Navbar from './components/Navbar'
 import HeroCarousel from './components/HeroCarousel'
 import FeaturedProducts from './components/FeaturedProducts'
 import LatestOffers from './components/LatestOffers'
 import AuthProvider from './contexts/AuthProvider'
+import FirestoreInitializer from './components/FirestoreInitializer'
 
 const theme = extendTheme({
   styles: {
@@ -34,6 +35,9 @@ function App() {
               <FeaturedProducts />
               <LatestOffers />
             </Box>
+            <Container maxW="container.xl" py={8}>
+              <FirestoreInitializer />
+            </Container>
           </Box>
         </Box>
       </AuthProvider>

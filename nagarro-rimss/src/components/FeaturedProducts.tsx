@@ -1,54 +1,70 @@
-import { Box, Container, SimpleGrid as ChakraGrid, Image, Text, Badge, VStack as ChakraVStack, Heading, Button } from '@chakra-ui/react';
-
-interface Product {
-  id: number;
-  name: string;
-  price: number;
-  image: string;
-  isFeatured: boolean;
-  discount?: number;
-}
-
-const mockProducts: Product[] = [
-  {
-    id: 1,
-    name: "Classic Moleskin Jacket",
-    price: 199.99,
-    image: "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&w=500&h=500",
-    isFeatured: true,
-    discount: 20
-  },
-  {
-    id: 2,
-    name: "Corduroy Trousers",
-    price: 89.99,
-    image: "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?auto=format&fit=crop&w=500&h=500",
-    isFeatured: true
-  },
-  {
-    id: 3,
-    name: "Tattersall Shirt",
-    price: 79.99,
-    image: "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?auto=format&fit=crop&w=500&h=500",
-    isFeatured: true,
-    discount: 15
-  },
-  {
-    id: 4,
-    name: "Wool Sweater",
-    price: 129.99,
-    image: "https://images.unsplash.com/photo-1576871337622-98d48d1cf531?auto=format&fit=crop&w=500&h=500",
-    isFeatured: true
-  }
-];
+import { useState, useEffect } from 'react';
+import { Box, Container, SimpleGrid as ChakraGrid, Image, Text, Badge, VStack as ChakraVStack, Heading, Button, Spinner, Center, useToast } from '@chakra-ui/react';
+import { getFeaturedProducts } from '../firebase/firestoreService';
+import type { Product } from '../firebase/firestoreService';
 
 const FeaturedProducts = () => {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const toast = useToast();
+
+  useEffect(() => {
+    const loadProducts = async () => {
+      try {
+        setLoading(true);
+        const featuredProducts = await getFeaturedProducts();
+        setProducts(featuredProducts);
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : 'Failed to load products';
+        setError(errorMessage);
+        toast({
+          title: 'Error loading products',
+          description: errorMessage,
+          status: 'error',
+          duration: 5000,
+          isClosable: true,
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadProducts();
+  }, [toast]);
+
+  if (loading) {
+    return (
+      <Box py={12} bg="white">
+        <Container maxW="container.xl">
+          <Heading mb={8} textAlign="center" fontSize="3xl">Featured Products</Heading>
+          <Center py={10}>
+            <Spinner size="xl" color="blue.500" thickness="4px" />
+          </Center>
+        </Container>
+      </Box>
+    );
+  }
+
+  if (error || products.length === 0) {
+    return (
+      <Box py={12} bg="white">
+        <Container maxW="container.xl">
+          <Heading mb={8} textAlign="center" fontSize="3xl">Featured Products</Heading>
+          <Center py={10}>
+            <Text color="gray.600">{error || 'No featured products available at the moment.'}</Text>
+          </Center>
+        </Container>
+      </Box>
+    );
+  }
+
   return (
     <Box py={12} bg="white">
       <Container maxW="container.xl">
         <Heading mb={8} textAlign="center" fontSize="3xl">Featured Products</Heading>
         <ChakraGrid templateColumns={{ base: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }} gap={8}>
-          {mockProducts.map((product) => (
+          {products.map((product) => (
             <ChakraVStack 
               key={product.id} 
               alignItems="start" 
