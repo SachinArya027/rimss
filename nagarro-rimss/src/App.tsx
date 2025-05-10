@@ -3,6 +3,7 @@ import Navbar from './components/Navbar'
 import HeroCarousel from './components/HeroCarousel'
 import FeaturedProducts from './components/FeaturedProducts'
 import LatestOffers from './components/LatestOffers'
+import AuthProvider from './contexts/AuthProvider'
 
 const theme = extendTheme({
   styles: {
@@ -24,16 +25,18 @@ const theme = extendTheme({
 function App() {
   return (
     <ChakraProvider theme={theme}>
-      <Box minH="100vh">
-        <Navbar />
-        <Box as="main">
-          <HeroCarousel />
-          <Box py={8}>
-            <FeaturedProducts />
-            <LatestOffers />
+      <AuthProvider>
+        <Box minH="100vh">
+          <Navbar />
+          <Box as="main">
+            <HeroCarousel />
+            <Box py={8}>
+              <FeaturedProducts />
+              <LatestOffers />
+            </Box>
           </Box>
         </Box>
-      </Box>
+      </AuthProvider>
     </ChakraProvider>
   )
 }

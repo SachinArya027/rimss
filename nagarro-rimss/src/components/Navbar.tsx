@@ -1,8 +1,13 @@
 import { Box, Flex, Button, IconButton, useDisclosure, Container, Stack as ChakraStack, Link, Text, Drawer, DrawerBody, DrawerHeader, DrawerOverlay, DrawerContent, DrawerCloseButton } from '@chakra-ui/react';
 import { HamburgerIcon, ChevronRightIcon } from '@chakra-ui/icons';
+import { useAuth } from '../contexts/useAuth';
+import LoginModal from './LoginModal';
+import UserProfile from './UserProfile';
 
 const Navbar = () => {
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isOpen: isMenuOpen, onOpen: onMenuOpen, onClose: onMenuClose } = useDisclosure();
+  const { isOpen: isLoginOpen, onOpen: onLoginOpen, onClose: onLoginClose } = useDisclosure();
+  const { currentUser } = useAuth();
 
   return (
     <Box as="nav" bg="white" boxShadow="sm" position="sticky" top={0} zIndex={1000}>
@@ -23,13 +28,19 @@ const Navbar = () => {
           </Flex>
 
           <ChakraStack direction="row" gap={4} display={{ base: 'none', md: 'flex' }}>
-            <Button variant="ghost" color="gray.700">Sign In</Button>
+            {currentUser ? (
+              <UserProfile />
+            ) : (
+              <Button variant="ghost" color="gray.700" onClick={onLoginOpen}>
+                Sign In
+              </Button>
+            )}
             <Button leftIcon={<ChevronRightIcon />}>Cart (0)</Button>
           </ChakraStack>
 
           <IconButton
             display={{ base: 'flex', md: 'none' }}
-            onClick={onOpen}
+            onClick={onMenuOpen}
             icon={<HamburgerIcon />}
             variant="ghost"
             aria-label="Open Menu"
@@ -37,7 +48,8 @@ const Navbar = () => {
         </Flex>
       </Container>
 
-      <Drawer isOpen={isOpen} placement="right" onClose={onClose}>
+      {/* Mobile Menu Drawer */}
+      <Drawer isOpen={isMenuOpen} placement="right" onClose={onMenuClose}>
         <DrawerOverlay />
         <DrawerContent>
           <DrawerCloseButton />
@@ -49,12 +61,26 @@ const Navbar = () => {
               <Link href="#" py={2} color="gray.700">Women</Link>
               <Link href="#" py={2} color="gray.700">Children</Link>
               <Link href="#" py={2} color="gray.700">Sale</Link>
-              <Button variant="outline" w="full">Sign In</Button>
+              {currentUser ? (
+                <Button variant="outline" w="full" onClick={onMenuClose}>
+                  My Profile
+                </Button>
+              ) : (
+                <Button variant="outline" w="full" onClick={() => {
+                  onMenuClose();
+                  onLoginOpen();
+                }}>
+                  Sign In
+                </Button>
+              )}
               <Button w="full" leftIcon={<ChevronRightIcon />}>Cart (0)</Button>
             </ChakraStack>
           </DrawerBody>
         </DrawerContent>
       </Drawer>
+
+      {/* Login Modal */}
+      <LoginModal isOpen={isLoginOpen} onClose={onLoginClose} />
     </Box>
   );
 };
