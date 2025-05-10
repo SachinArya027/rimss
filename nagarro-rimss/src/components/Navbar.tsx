@@ -1,10 +1,11 @@
-import { Box, Flex, Button, IconButton, useDisclosure, Container, Stack as ChakraStack, Link, Text, Drawer, DrawerBody, DrawerHeader, DrawerOverlay, DrawerContent, DrawerCloseButton } from '@chakra-ui/react';
+import { Box, Flex, Button, IconButton, useDisclosure, Container, Stack as ChakraStack, Link, Drawer, DrawerBody, DrawerHeader, DrawerOverlay, DrawerContent, DrawerCloseButton, Image } from '@chakra-ui/react';
 import { HamburgerIcon, ChevronRightIcon } from '@chakra-ui/icons';
 import { useAuth } from '../contexts/useAuth';
 import LoginModal from './LoginModal';
 import UserProfile from './UserProfile';
 import SearchBar from './SearchBar';
 import { useNavigate } from 'react-router-dom';
+import LogoSvg from '../assets/Logo.svg';
 
 const Navbar = () => {
   const { isOpen: isMenuOpen, onOpen: onMenuOpen, onClose: onMenuClose } = useDisclosure();
@@ -23,7 +24,7 @@ const Navbar = () => {
         <Flex h={16} alignItems="center" justifyContent="space-between">
           <Flex alignItems="center" mr={{ base: 2, md: 0 }}>
             <Link href="/" _hover={{ textDecoration: 'none' }}>
-              <Text fontSize={{ base: "xl", md: "2xl" }} fontWeight="bold" color="blue.600">RIMSS</Text>
+              <Image src={LogoSvg} alt="RIMSS Logo" height={{ base: "30px", md: "40px" }} />
             </Link>
           </Flex>
 
