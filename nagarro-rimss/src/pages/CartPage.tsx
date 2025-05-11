@@ -24,13 +24,20 @@ import {
   TableContainer,
   useBreakpointValue,
   useToast,
-  Link
+  Link,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalCloseButton
 } from '@chakra-ui/react';
 import { CloseIcon, AddIcon, MinusIcon } from '@chakra-ui/icons';
 import { Link as RouterLink } from 'react-router-dom';
 import { useCart } from '../contexts/useCart';
 import { useAuth } from '../contexts/useAuth';
 import LoginModal from '../components/LoginModal';
+import StripeCheckout from '../components/StripeCheckout';
 
 const CartPage = () => {
   const { cartItems, removeFromCart, updateQuantity, clearCart, totalItems, totalPrice } = useCart();
@@ -38,6 +45,7 @@ const CartPage = () => {
   const navigate = useNavigate();
   const toast = useToast();
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
   
   // Colors
   const bgColor = useColorModeValue('white', 'gray.800');
@@ -55,15 +63,34 @@ const CartPage = () => {
       return;
     }
     
+    // Open Stripe checkout modal
+    setIsCheckoutModalOpen(true);
+  };
+  
+  // Close checkout modal
+  const handleCloseCheckoutModal = () => {
+    setIsCheckoutModalOpen(false);
+  };
+  
+  // Handle successful payment
+  const handlePaymentSuccess = (orderId: string) => {
+    // Close the checkout modal
+    setIsCheckoutModalOpen(false);
+    
+    // Clear the cart
+    clearCart();
+    
+    // Show success message
     toast({
-      title: 'Proceeding to checkout',
-      description: 'This feature is not yet implemented.',
-      status: 'info',
-      duration: 3000,
+      title: 'Payment successful!',
+      description: `Your order #${orderId} has been placed.`,
+      status: 'success',
+      duration: 5000,
       isClosable: true,
     });
-    // In a real app, this would navigate to the checkout page
-    // navigate('/checkout');
+    
+    // Navigate to home page or order confirmation page
+    navigate('/');
   };
   
   // Close login modal
@@ -103,6 +130,23 @@ const CartPage = () => {
   return (
     <Box pt="72px" pb={8} minH="calc(100vh - 64px)">
       <LoginModal isOpen={isLoginModalOpen} onClose={handleCloseLoginModal} />
+      
+      {/* Stripe Checkout Modal */}
+      <Modal isOpen={isCheckoutModalOpen} onClose={handleCloseCheckoutModal} size="lg">
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Checkout</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody pb={6}>
+            <StripeCheckout 
+              amount={Math.round(orderTotal * 100)} // Convert to cents for Stripe
+              onClose={handleCloseCheckoutModal}
+              onSuccess={handlePaymentSuccess}
+            />
+          </ModalBody>
+        </ModalContent>
+      </Modal>
+      
       <Container maxW="container.xl">
         <Heading mb={6}>Shopping Cart ({totalItems} {totalItems === 1 ? 'item' : 'items'})</Heading>
         
