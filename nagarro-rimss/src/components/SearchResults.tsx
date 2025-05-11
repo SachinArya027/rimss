@@ -32,6 +32,10 @@ const SearchResults = ({ products, loading, searchTerm }: SearchResultsProps) =>
   const [sortBy, setSortBy] = useState<SortOption>('name_asc');
   const bgColor = useColorModeValue('white', 'gray.800');
   const borderColor = useColorModeValue('gray.200', 'gray.700');
+  const textColor = useColorModeValue('gray.600', 'gray.300');
+  const headingColor = useColorModeValue('gray.800', 'white');
+  const priceColor = useColorModeValue('blue.600', 'blue.300');
+  const strikeThroughColor = useColorModeValue('gray.500', 'gray.500');
   const { addToCart } = useCart();
   const toast = useToast();
   
@@ -73,7 +77,7 @@ const SearchResults = ({ products, loading, searchTerm }: SearchResultsProps) =>
       <Center py={10}>
         <VStack spacing={4}>
           <Spinner size="xl" color="blue.500" thickness="4px" />
-          <Text>Searching products...</Text>
+          <Text color={textColor}>Searching products...</Text>
         </VStack>
       </Center>
     );
@@ -83,8 +87,8 @@ const SearchResults = ({ products, loading, searchTerm }: SearchResultsProps) =>
     return (
       <Center py={10}>
         <VStack spacing={4}>
-          <Heading size="md">No products found</Heading>
-          <Text>
+          <Heading size="md" color={headingColor}>No products found</Heading>
+          <Text color={textColor}>
             {searchTerm 
               ? `No products match "${searchTerm}". Try different search terms or filters.` 
               : 'No products match your filters. Try adjusting your search criteria.'}
@@ -97,9 +101,9 @@ const SearchResults = ({ products, loading, searchTerm }: SearchResultsProps) =>
   return (
     <Box>
       <Flex justify="space-between" align="center" mb={6}>
-        <Heading size="md">{products.length} Products Found</Heading>
+        <Heading size="md" color={headingColor}>{products.length} Products Found</Heading>
         <Flex align="center">
-          <Text mr={2} fontSize="sm">Sort by:</Text>
+          <Text mr={2} fontSize="sm" color={textColor}>Sort by:</Text>
           <Select 
             value={sortBy} 
             onChange={handleSortChange} 
@@ -160,16 +164,16 @@ const SearchResults = ({ products, loading, searchTerm }: SearchResultsProps) =>
               </Link>
             </Box>
             <Link as={RouterLink} to={`/product/${product.id}`} _hover={{ textDecoration: 'none' }}>
-              <Text fontWeight="bold" fontSize="lg" mt={2}>{product.name}</Text>
+              <Text fontWeight="bold" fontSize="lg" mt={2} color={headingColor}>{product.name}</Text>
             </Link>
-            <Text color="gray.600" fontSize="sm" noOfLines={2}>
+            <Text color={textColor} fontSize="sm" noOfLines={2}>
               {product.description || 'No description available'}
             </Text>
             <Flex justify="space-between" width="100%" align="center">
-              <Text color="blue.600" fontSize="xl" fontWeight="bold">
+              <Text color={priceColor} fontSize="xl" fontWeight="bold">
                 ${product.price.toFixed(2)}
                 {product.discount && (
-                  <Text as="span" color="gray.500" fontSize="md" textDecoration="line-through" ml={2}>
+                  <Text as="span" color={strikeThroughColor} fontSize="md" textDecoration="line-through" ml={2}>
                     ${(product.price * (1 + product.discount/100)).toFixed(2)}
                   </Text>
                 )}

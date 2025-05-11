@@ -66,6 +66,9 @@ const SearchPage = () => {
   // Colors
   const bgColor = useColorModeValue('white', 'gray.800');
   const borderColor = useColorModeValue('gray.200', 'gray.700');
+  const pageBgColor = useColorModeValue('gray.50', 'gray.900');
+  const textColor = useColorModeValue('gray.600', 'gray.300');
+  const headingColor = useColorModeValue('gray.800', 'white');
 
   // Update filters when URL parameters change
   useEffect(() => {
@@ -293,14 +296,14 @@ const SearchPage = () => {
   );
 
   return (
-    <Box pt="72px" pb={8} bg="gray.50" minH="calc(100vh - 64px)">
+    <Box pt="72px" pb={8} bg={pageBgColor} minH="calc(100vh - 64px)">
       <Container maxW="container.xl">
         <Box mb={6}>
-          <Heading size="lg">
+          <Heading size="lg" color={headingColor}>
             {initialQuery ? `Search results for "${initialQuery}"` : 'All Products'}
           </Heading>
           {products.length > 0 && searched && (
-            <Text color="gray.600" mt={2}>
+            <Text color={textColor} mt={2}>
               Found {products.length} products
             </Text>
           )}
@@ -345,7 +348,7 @@ const SearchPage = () => {
               <Center py={10}>
                 <VStack spacing={4}>
                   <Spinner size="xl" color="blue.500" thickness="4px" />
-                  <Text>Searching products...</Text>
+                  <Text color={textColor}>Searching products...</Text>
                 </VStack>
               </Center>
             ) : (
@@ -353,7 +356,7 @@ const SearchPage = () => {
                 {!searched ? (
                   <Center py={10}>
                     <VStack spacing={4}>
-                      <Text color="gray.600">
+                      <Text color={textColor}>
                         Use the filters to find products
                       </Text>
                       <Button 
@@ -367,8 +370,8 @@ const SearchPage = () => {
                 ) : products.length === 0 ? (
                   <Center py={10}>
                     <VStack spacing={4}>
-                      <Heading size="md">No products found</Heading>
-                      <Text>
+                      <Heading size="md" color={headingColor}>No products found</Heading>
+                      <Text color={textColor}>
                         {initialQuery 
                           ? `No products match "${initialQuery}". Try different search terms or filters.` 
                           : 'No products match your filters. Try adjusting your search criteria.'}

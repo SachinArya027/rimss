@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Box, Container, SimpleGrid as ChakraGrid, Image, Text, Badge, VStack as ChakraVStack, Heading, Button, Spinner, Center, useToast, Link } from '@chakra-ui/react';
+import { Box, Container, SimpleGrid as ChakraGrid, Image, Text, Badge, VStack as ChakraVStack, Heading, Button, Spinner, Center, useToast, Link, useColorModeValue } from '@chakra-ui/react';
 import { Link as RouterLink } from 'react-router-dom';
 import { getFeaturedProducts } from '../firebase/firestoreService';
 import type { Product } from '../firebase/firestoreService';
@@ -11,6 +11,13 @@ const FeaturedProducts = () => {
   const [error, setError] = useState<string | null>(null);
   const toast = useToast();
   const { addToCart } = useCart();
+  
+  // Theme colors
+  const bgColor = useColorModeValue('white', 'gray.800');
+  const cardBgColor = useColorModeValue('white', 'gray.700');
+  const textColor = useColorModeValue('gray.600', 'gray.300');
+  const headingColor = useColorModeValue('gray.800', 'white');
+  const borderColor = useColorModeValue('gray.200', 'gray.600');
   
   // Handle adding product to cart
   const handleAddToCart = (product: Product) => {
@@ -50,9 +57,9 @@ const FeaturedProducts = () => {
 
   if (loading) {
     return (
-      <Box py={12} bg="white">
+      <Box py={12} bg={bgColor}>
         <Container maxW="container.xl">
-          <Heading mb={8} textAlign="center" fontSize="3xl">Featured Products</Heading>
+          <Heading mb={8} textAlign="center" fontSize="3xl" color={headingColor}>Featured Products</Heading>
           <Center py={10}>
             <Spinner size="xl" color="blue.500" thickness="4px" />
           </Center>
@@ -63,11 +70,11 @@ const FeaturedProducts = () => {
 
   if (error || products.length === 0) {
     return (
-      <Box py={12} bg="white">
+      <Box py={12} bg={bgColor}>
         <Container maxW="container.xl">
-          <Heading mb={8} textAlign="center" fontSize="3xl">Featured Products</Heading>
+          <Heading mb={8} textAlign="center" fontSize="3xl" color={headingColor}>Featured Products</Heading>
           <Center py={10}>
-            <Text color="gray.600">{error || 'No featured products available at the moment.'}</Text>
+            <Text color={textColor}>{error || 'No featured products available at the moment.'}</Text>
           </Center>
         </Container>
       </Box>
@@ -75,9 +82,9 @@ const FeaturedProducts = () => {
   }
 
   return (
-    <Box py={12} bg="white">
+    <Box py={12} bg={bgColor}>
       <Container maxW="container.xl">
-        <Heading mb={8} textAlign="center" fontSize="3xl">Featured Products</Heading>
+        <Heading mb={8} textAlign="center" fontSize="3xl" color={headingColor}>Featured Products</Heading>
         <ChakraGrid templateColumns={{ base: '1fr', sm: '1fr', md: 'repeat(2, 1fr)', lg: 'repeat(4, 1fr)' }} gap={8}>
           {products.map((product) => (
             <ChakraVStack 
@@ -87,7 +94,8 @@ const FeaturedProducts = () => {
               p={6} 
               borderWidth="1px" 
               borderRadius="xl"
-              bg="white"
+              bg={cardBgColor}
+              borderColor={borderColor}
               _hover={{
                 transform: 'translateY(-4px)',
                 boxShadow: 'lg',

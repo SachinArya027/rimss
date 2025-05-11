@@ -1,8 +1,9 @@
-import { Box, Flex, Button, IconButton, useDisclosure, Container, Stack as ChakraStack, Link, Drawer, DrawerBody, DrawerHeader, DrawerOverlay, DrawerContent, DrawerCloseButton, Image, Circle } from '@chakra-ui/react';
-import { HamburgerIcon, ChevronRightIcon } from '@chakra-ui/icons';
+import { Box, Flex, Button, IconButton, useDisclosure, Container, Stack as ChakraStack, Link, Drawer, DrawerBody, DrawerHeader, DrawerOverlay, DrawerContent, DrawerCloseButton, Image, Circle, useColorModeValue, Tooltip } from '@chakra-ui/react';
+import { HamburgerIcon, MoonIcon, SunIcon } from '@chakra-ui/icons';
 import { FiShoppingCart } from 'react-icons/fi';
 import { useAuth } from '../contexts/useAuth';
 import { useCart } from '../contexts/useCart';
+import { useTheme } from '../contexts/ThemeContext';
 import LoginModal from './LoginModal';
 import UserProfile from './UserProfile';
 import SearchBar from './SearchBar';
@@ -14,7 +15,13 @@ const Navbar = () => {
   const { isOpen: isLoginOpen, onOpen: onLoginOpen, onClose: onLoginClose } = useDisclosure();
   const { currentUser } = useAuth();
   const { totalItems } = useCart();
+  const { toggleTheme, isDarkMode } = useTheme();
   const navigate = useNavigate();
+  
+  // Colors that adapt to the current theme
+  const navBgColor = useColorModeValue('white', 'gray.800');
+  const textColor = useColorModeValue('gray.700', 'gray.100');
+  const hoverColor = useColorModeValue('blue.500', 'blue.300');
   
   // Handle search submission
   const handleSearch = (searchTerm: string) => {
@@ -22,7 +29,7 @@ const Navbar = () => {
   };
 
   return (
-    <Box as="nav" bg="white" boxShadow="md" position="fixed" width="100%" top={0} zIndex={1000}>
+    <Box as="nav" bg={navBgColor} boxShadow="md" position="fixed" width="100%" top={0} zIndex={1000}>
       <Container maxW="100%" px={4}>
         <Flex h={16} alignItems="center" justifyContent="space-between">
           <Flex alignItems="center" mr={{ base: 2, md: 0 }}>
@@ -33,11 +40,11 @@ const Navbar = () => {
 
           <Flex display={{ base: 'none', lg: 'flex' }} alignItems="center" flex={1} mx={8} width="100%">
             <ChakraStack direction="row" gap={10} mr={8} flexShrink={0}>
-              <Link href="/" color="gray.700" _hover={{ color: 'blue.500' }}>Home</Link>
-              <Link href="/search?category=men" color="gray.700" _hover={{ color: 'blue.500' }}>Men</Link>
-              <Link href="/search?category=women" color="gray.700" _hover={{ color: 'blue.500' }}>Women</Link>
-              <Link href="/search?category=accessories" color="gray.700" _hover={{ color: 'blue.500' }}>Accessories</Link>
-              <Link href="/search?discounted=true" color="gray.700" _hover={{ color: 'blue.500' }}>Sale</Link>
+              <Link href="/" color={textColor} _hover={{ color: hoverColor }}>Home</Link>
+              <Link href="/search?category=men" color={textColor} _hover={{ color: hoverColor }}>Men</Link>
+              <Link href="/search?category=women" color={textColor} _hover={{ color: hoverColor }}>Women</Link>
+              <Link href="/search?category=accessories" color={textColor} _hover={{ color: hoverColor }}>Accessories</Link>
+              <Link href="/search?discounted=true" color={textColor} _hover={{ color: hoverColor }}>Sale</Link>
             </ChakraStack>
             
             {/* Desktop Search Bar */}
@@ -47,6 +54,18 @@ const Navbar = () => {
           </Flex>
 
           <ChakraStack direction="row" gap={4} display={{ base: 'none', lg: 'flex' }} alignItems="center">
+            {/* Theme Toggle */}
+            <Tooltip label={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}>
+              <IconButton
+                aria-label="Toggle color mode"
+                icon={isDarkMode ? <SunIcon /> : <MoonIcon />}
+                variant="ghost"
+                colorScheme="blue"
+                onClick={toggleTheme}
+                size="md"
+              />
+            </Tooltip>
+            
             {/* Cart Icon */}
             <Box position="relative">
               <IconButton
@@ -77,7 +96,7 @@ const Navbar = () => {
             {currentUser ? (
               <UserProfile />
             ) : (
-              <Button variant="ghost" color="gray.700" onClick={onLoginOpen}>
+              <Button variant="ghost" color={textColor} onClick={onLoginOpen}>
                 Sign In
               </Button>
             )}
@@ -118,12 +137,22 @@ const Navbar = () => {
                 </Circle>
               )}
             </Box>
+            {/* Theme Toggle - Mobile */}
+            <IconButton
+              aria-label="Toggle color mode"
+              icon={isDarkMode ? <SunIcon /> : <MoonIcon />}
+              variant="ghost"
+              colorScheme="blue"
+              onClick={toggleTheme}
+              size="md"
+            />
+            
             <IconButton
               onClick={onMenuOpen}
               aria-label="Open menu"
               icon={<HamburgerIcon />}
               variant="ghost"
-              color="gray.700"
+              color={textColor}
               size="md"
             />
           </Flex>
@@ -138,25 +167,34 @@ const Navbar = () => {
           <DrawerHeader borderBottomWidth="1px">Menu</DrawerHeader>
           <DrawerBody>
             <ChakraStack spacing={4}>
-              <Link href="/" py={2} color="gray.700">Home</Link>
-              <Link href="/search?category=men" py={2} color="gray.700">Men</Link>
-              <Link href="/search?category=women" py={2} color="gray.700">Women</Link>
-              <Link href="/search?category=accessories" py={2} color="gray.700">Accessories</Link>
-              <Link href="/search?discounted=true" py={2} color="gray.700">Sale</Link>
-              <Link href="/search" py={2} color="gray.700">Search Products</Link>
+              <Link href="/" py={2} color={textColor}>Home</Link>
+              <Link href="/search?category=men" py={2} color={textColor}>Men</Link>
+              <Link href="/search?category=women" py={2} color={textColor}>Women</Link>
+              <Link href="/search?category=accessories" py={2} color={textColor}>Accessories</Link>
+              <Link href="/search?discounted=true" py={2} color={textColor}>Sale</Link>
+              <Link href="/search" py={2} color={textColor}>Search Products</Link>
               {currentUser ? (
                 <Button variant="outline" w="full" onClick={onMenuClose}>
-                  My Profile
+                  <Link href="/profile" py={2} color={textColor}>My Profile</Link>
                 </Button>
               ) : (
-                <Button variant="outline" w="full" onClick={() => {
+                <Button colorScheme="blue" w="full" onClick={() => {
                   onMenuClose();
                   onLoginOpen();
                 }}>
                   Sign In
                 </Button>
               )}
-              <Button w="full" leftIcon={<ChevronRightIcon />}>Cart (0)</Button>
+              <Button 
+                as={RouterLink} 
+                to="/cart" 
+                w="full" 
+                leftIcon={<FiShoppingCart />} 
+                color={textColor}
+                onClick={onMenuClose}
+              >
+                Cart ({totalItems})
+              </Button>
             </ChakraStack>
           </DrawerBody>
         </DrawerContent>

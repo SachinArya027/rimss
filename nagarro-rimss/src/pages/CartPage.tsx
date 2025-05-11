@@ -114,7 +114,7 @@ const CartPage = () => {
         currentUser.uid,
         cartItems,
         shippingAddress,
-        'Credit Card', // In a real app, this would be the actual payment method
+        'Credit Card', // Payment method
         paymentId,
         totalPrice,
         shippingCost,

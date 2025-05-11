@@ -1,4 +1,4 @@
-import { ChakraProvider, Box, extendTheme, Container } from '@chakra-ui/react'
+import { ChakraProvider, Box, extendTheme, Container, ColorModeScript } from '@chakra-ui/react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import Navbar from './components/Navbar'
 import HeroCarousel from './components/HeroCarousel'
@@ -11,14 +11,20 @@ import SearchPage from './pages/SearchPage'
 import ProductDetailsPage from './pages/ProductDetailsPage'
 import CartPage from './pages/CartPage'
 import OrderHistoryPage from './pages/OrderHistoryPage'
+import { ThemeProvider } from './contexts/ThemeContext'
 
 const theme = extendTheme({
+  config: {
+    initialColorMode: 'light',
+    useSystemColorMode: false,
+  },
   styles: {
-    global: {
+    global: (props: { colorMode: string }) => ({
       body: {
-        bg: 'gray.50'
+        bg: props.colorMode === 'dark' ? 'gray.800' : 'gray.50',
+        color: props.colorMode === 'dark' ? 'white' : 'gray.800'
       }
-    }
+    })
   },
   components: {
     Button: {
@@ -32,10 +38,12 @@ const theme = extendTheme({
 function App() {
   return (
     <ChakraProvider theme={theme}>
+      <ColorModeScript initialColorMode={theme.config.initialColorMode} />
+      <ThemeProvider>
       <AuthProvider>
         <CartProvider>
           <Router>
-            <Box minH="100vh" bg="gray.50">
+            <Box minH="100vh">
               <Navbar />
               <Routes>
                 <Route path="/" element={
@@ -59,6 +67,7 @@ function App() {
           </Router>
         </CartProvider>
       </AuthProvider>
+      </ThemeProvider>
     </ChakraProvider>
   )
 }

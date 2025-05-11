@@ -615,7 +615,7 @@ const clearCollection = async (collectionName: string): Promise<void> => {
   const snapshot = await getDocs(collection(db, collectionName));
   const deletePromises = snapshot.docs.map(doc => deleteDoc(doc.ref));
   await Promise.all(deletePromises);
-  console.log(`Cleared ${snapshot.docs.length} documents from ${collectionName}`);
+  // Documents cleared successfully
 };
 
 // Function to initialize products
@@ -623,7 +623,7 @@ const initializeProducts = async (forceReset = false): Promise<void> => {
   const isEmpty = await isCollectionEmpty('products');
   
   if (!isEmpty && !forceReset) {
-    console.log('Products collection already contains data. Skipping initialization.');
+    // Products collection already contains data, skip initialization
     return;
   }
   
@@ -634,7 +634,7 @@ const initializeProducts = async (forceReset = false): Promise<void> => {
   const productsCollection = collection(db, 'products');
   const addPromises = sampleProducts.map(product => addDoc(productsCollection, product));
   await Promise.all(addPromises);
-  console.log(`Added ${sampleProducts.length} products to Firestore.`);
+  // Products added successfully
 };
 
 // Function to initialize offers
@@ -642,7 +642,7 @@ const initializeOffers = async (forceReset = false): Promise<void> => {
   const isEmpty = await isCollectionEmpty('offers');
   
   if (!isEmpty && !forceReset) {
-    console.log('Offers collection already contains data. Skipping initialization.');
+    // Offers collection already contains data, skip initialization
     return;
   }
   
@@ -653,7 +653,7 @@ const initializeOffers = async (forceReset = false): Promise<void> => {
   const offersCollection = collection(db, 'offers');
   const addPromises = sampleOffers.map(offer => addDoc(offersCollection, offer));
   await Promise.all(addPromises);
-  console.log(`Added ${sampleOffers.length} offers to Firestore.`);
+  // Offers added successfully
 };
 
 // Function to initialize orders
@@ -661,7 +661,7 @@ const initializeOrders = async (forceReset = false): Promise<void> => {
   const isEmpty = await isCollectionEmpty('orders');
   
   if (!isEmpty && !forceReset) {
-    console.log('Orders collection already contains data. Skipping initialization.');
+    // Orders collection already contains data, skip initialization
     return;
   }
   
@@ -672,17 +672,17 @@ const initializeOrders = async (forceReset = false): Promise<void> => {
   const ordersCollection = collection(db, 'orders');
   const addPromises = sampleOrders.map(order => addDoc(ordersCollection, order));
   await Promise.all(addPromises);
-  console.log(`Added ${sampleOrders.length} sample orders to Firestore.`);
+  // Orders added successfully
 };
 
 // Main initialization function
 export const initializeFirestore = async (forceReset = false): Promise<void> => {
   try {
-    console.log('Starting Firestore initialization...');
+    // Start Firestore initialization
     await initializeProducts(forceReset);
     await initializeOffers(forceReset);
     await initializeOrders(forceReset);
-    console.log('Firestore initialization completed successfully.');
+    // Firestore initialization completed successfully
   } catch (error) {
     console.error('Error initializing Firestore:', error);
     throw error;

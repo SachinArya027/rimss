@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Box, Container, Heading, SimpleGrid as ChakraGrid, Text, VStack as ChakraVStack, Image, Button, Spinner, Center, useToast } from '@chakra-ui/react';
+import { Box, Container, Heading, SimpleGrid as ChakraGrid, Text, VStack as ChakraVStack, Image, Button, Spinner, Center, useToast, useColorModeValue } from '@chakra-ui/react';
 import { ChevronRightIcon } from '@chakra-ui/icons';
 import { useNavigate } from 'react-router-dom';
 import { getActiveOffers } from '../firebase/firestoreService';
@@ -11,6 +11,13 @@ const LatestOffers = () => {
   const [error, setError] = useState<string | null>(null);
   const toast = useToast();
   const navigate = useNavigate();
+  
+  // Theme colors
+  const bgColor = useColorModeValue('gray.50', 'gray.900');
+  const cardBgColor = useColorModeValue('white', 'gray.700');
+  const textColor = useColorModeValue('gray.600', 'gray.300');
+  const headingColor = useColorModeValue('gray.800', 'white');
+  const borderColor = useColorModeValue('gray.200', 'gray.600');
   
   // Handle clicking on an offer
   const handleOfferClick = (offer: Offer) => {
@@ -48,9 +55,9 @@ const LatestOffers = () => {
 
   if (loading) {
     return (
-      <Box bg="gray.50" py={12}>
+      <Box bg={bgColor} py={12}>
         <Container maxW="container.xl">
-          <Heading mb={8} textAlign="center" fontSize="3xl">Latest Offers</Heading>
+          <Heading mb={8} textAlign="center" fontSize="3xl" color={headingColor}>Latest Offers</Heading>
           <Center py={10}>
             <Spinner size="xl" color="blue.500" thickness="4px" />
           </Center>
@@ -61,11 +68,11 @@ const LatestOffers = () => {
 
   if (error || offers.length === 0) {
     return (
-      <Box bg="gray.50" py={12}>
+      <Box bg={bgColor} py={12}>
         <Container maxW="container.xl">
-          <Heading mb={8} textAlign="center" fontSize="3xl">Latest Offers</Heading>
+          <Heading mb={8} textAlign="center" fontSize="3xl" color={headingColor}>Latest Offers</Heading>
           <Center py={10}>
-            <Text color="gray.600">{error || 'No active offers available at the moment.'}</Text>
+            <Text color={textColor}>{error || 'No active offers available at the moment.'}</Text>
           </Center>
         </Container>
       </Box>
@@ -73,17 +80,19 @@ const LatestOffers = () => {
   }
 
   return (
-    <Box bg="gray.50" py={12}>
+    <Box bg={bgColor} py={12}>
       <Container maxW="container.xl">
-        <Heading mb={8} textAlign="center" fontSize="3xl">Latest Offers</Heading>
+        <Heading mb={8} textAlign="center" fontSize="3xl" color={headingColor}>Latest Offers</Heading>
         <ChakraGrid templateColumns={{ base: '1fr', md: 'repeat(3, 1fr)' }} gap={8}>
           {offers.map((offer) => (
             <ChakraVStack
               key={offer.id}
-              bg="white"
+              bg={cardBgColor}
               p={0}
               borderRadius="xl"
               boxShadow="md"
+              borderWidth="1px"
+              borderColor={borderColor}
               gap={0}
               alignItems="stretch"
               overflow="hidden"
@@ -119,9 +128,9 @@ const LatestOffers = () => {
               </Box>
               <ChakraVStack p={6} gap={4} flex={1}>
                 <ChakraVStack alignItems="start" gap={2} flex={1} cursor="pointer" onClick={() => handleOfferClick(offer)}>
-                  <Heading size="md">{offer.title}</Heading>
-                  <Text color="gray.600">{offer.description}</Text>
-                  <Text color="gray.500" fontSize="sm" mt="auto">
+                  <Heading size="md" color={headingColor}>{offer.title}</Heading>
+                  <Text color={textColor}>{offer.description}</Text>
+                  <Text color={textColor} fontSize="sm" mt="auto">
                     Valid until {new Date(offer.validUntil).toLocaleDateString()}
                   </Text>
                 </ChakraVStack>

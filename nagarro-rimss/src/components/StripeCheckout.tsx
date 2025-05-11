@@ -84,7 +84,7 @@ const CheckoutForm = ({ amount, onSuccess }: { amount: number; onSuccess: (payme
       }
 
       // Simulate payment confirmation
-      // In a real app, you would use the actual client secret:
+      // Use mock implementation for demo purposes:
       // const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
       //   payment_method: { card: cardElement }
       // });
@@ -97,7 +97,7 @@ const CheckoutForm = ({ amount, onSuccess }: { amount: number; onSuccess: (payme
       };
 
       // Handle successful payment
-      const { success } = await handlePaymentSuccess(mockPaymentIntent);
+      const { success } = await handlePaymentSuccess();
       
       if (success) {
         toast({
