@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Box, Container, SimpleGrid as ChakraGrid, Image, Text, Badge, VStack as ChakraVStack, Heading, Button, Spinner, Center, useToast, Link, Flex } from '@chakra-ui/react';
+import { Box, Container, SimpleGrid as ChakraGrid, Image, Text, Badge, VStack as ChakraVStack, Heading, Button, Spinner, Center, useToast, Link } from '@chakra-ui/react';
 import { Link as RouterLink } from 'react-router-dom';
 import { getFeaturedProducts } from '../firebase/firestoreService';
 import type { Product } from '../firebase/firestoreService';
