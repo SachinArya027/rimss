@@ -12,10 +12,12 @@ import {
 } from '@chakra-ui/react';
 import { ChevronDownIcon } from '@chakra-ui/icons';
 import { useAuth } from '../contexts/useAuth';
+import { useNavigate } from 'react-router-dom';
 
 const UserProfile = () => {
   const { currentUser, logout } = useAuth();
   const toast = useToast();
+  const navigate = useNavigate();
 
   const handleLogout = async () => {
     try {
@@ -36,6 +38,10 @@ const UserProfile = () => {
         isClosable: true,
       });
     }
+  };
+
+  const handleNavigate = (path: string) => {
+    navigate(path);
   };
 
   if (!currentUser) return null;
@@ -61,9 +67,9 @@ const UserProfile = () => {
           <Text fontSize="sm" color="gray.600">{currentUser.email}</Text>
         </Flex>
         <Divider my={2} />
-        <MenuItem>My Profile</MenuItem>
-        <MenuItem>Order History</MenuItem>
-        <MenuItem>Wishlist</MenuItem>
+        <MenuItem onClick={() => handleNavigate('/profile')}>My Profile</MenuItem>
+        <MenuItem onClick={() => handleNavigate('/orders')}>Order History</MenuItem>
+        <MenuItem onClick={() => handleNavigate('/wishlist')}>Wishlist</MenuItem>
         <Divider my={2} />
         <MenuItem onClick={handleLogout}>Sign Out</MenuItem>
       </MenuList>

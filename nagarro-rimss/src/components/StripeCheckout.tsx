@@ -37,7 +37,7 @@ const cardElementOptions = {
 };
 
 // Checkout form component
-const CheckoutForm = ({ amount, onSuccess }: { amount: number; onSuccess: (orderId: string) => void }) => {
+const CheckoutForm = ({ amount, onSuccess }: { amount: number; onSuccess: (paymentId: string) => void }) => {
   const stripe = useStripe();
   const elements = useElements();
   const [error, setError] = useState<string | null>(null);
@@ -97,18 +97,19 @@ const CheckoutForm = ({ amount, onSuccess }: { amount: number; onSuccess: (order
       };
 
       // Handle successful payment
-      const { success, orderId } = await handlePaymentSuccess(mockPaymentIntent);
+      const { success } = await handlePaymentSuccess(mockPaymentIntent);
       
       if (success) {
         toast({
-          title: 'Payment successful!',
-          description: `Your order #${orderId} has been placed.`,
+          title: 'Payment processed!',
+          description: 'Your payment has been processed successfully.',
           status: 'success',
           duration: 5000,
           isClosable: true,
         });
         
-        onSuccess(orderId);
+        // Pass the payment ID to the parent component
+        onSuccess(mockPaymentIntent.id);
       }
     } catch (err) {
       console.error('Payment error:', err);

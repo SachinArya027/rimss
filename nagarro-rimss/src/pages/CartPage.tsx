@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -38,6 +37,8 @@ import { useCart } from '../contexts/useCart';
 import { useAuth } from '../contexts/useAuth';
 import LoginModal from '../components/LoginModal';
 import StripeCheckout from '../components/StripeCheckout';
+import { createOrder } from '../services/orderService';
+import type { ShippingAddress } from '../services/orderService';
 
 const CartPage = () => {
   const { cartItems, removeFromCart, updateQuantity, clearCart, totalItems, totalPrice } = useCart();
@@ -73,24 +74,79 @@ const CartPage = () => {
   };
   
   // Handle successful payment
-  const handlePaymentSuccess = (orderId: string) => {
+  const handlePaymentSuccess = async (paymentId: string) => {
     // Close the checkout modal
     setIsCheckoutModalOpen(false);
     
-    // Clear the cart
-    clearCart();
+    if (!currentUser) {
+      // This shouldn't happen as we check for login before checkout
+      toast({
+        title: 'Error',
+        description: 'You must be logged in to complete your purchase.',
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
+      return;
+    }
     
-    // Show success message
-    toast({
-      title: 'Payment successful!',
-      description: `Your order #${orderId} has been placed.`,
-      status: 'success',
-      duration: 5000,
-      isClosable: true,
-    });
-    
-    // Navigate to home page or order confirmation page
-    navigate('/');
+    try {
+      // Default shipping address (in a real app, this would be collected from the user)
+      const shippingAddress: ShippingAddress = {
+        fullName: currentUser.displayName || 'Customer',
+        addressLine1: '123 Main St',
+        city: 'New York',
+        state: 'NY',
+        postalCode: '10001',
+        country: 'United States'
+      };
+      
+      // Calculate discount amount
+      const discount = cartItems.reduce((total, item) => {
+        if (item.product.discount) {
+          return total + (item.product.price * (item.product.discount / 100) * item.quantity);
+        }
+        return total;
+      }, 0);
+      
+      // Create order in Firestore
+      const orderId = await createOrder(
+        currentUser.uid,
+        cartItems,
+        shippingAddress,
+        'Credit Card', // In a real app, this would be the actual payment method
+        paymentId,
+        totalPrice,
+        shippingCost,
+        discount,
+        orderTotal
+      );
+      
+      // Clear the cart
+      clearCart();
+      
+      // Show success message
+      toast({
+        title: 'Payment successful!',
+        description: `Your order #${orderId.substring(0, 8)} has been placed.`,
+        status: 'success',
+        duration: 5000,
+        isClosable: true,
+      });
+      
+      // Navigate to order history page
+      navigate('/orders');
+    } catch (error) {
+      console.error('Error creating order:', error);
+      
+      toast({
+        title: 'Order processing error',
+        description: 'There was an error processing your order. Please contact customer support.',
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
+    }
   };
   
   // Close login modal

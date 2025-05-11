@@ -9,7 +9,7 @@ const sampleProducts = [
     price: 199.99,
     images: [
       "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&w=500&h=500",
-      "https://images.unsplash.com/photo-1608063615781-e2ef8c73d114?auto=format&fit=crop&w=500&h=500",
+      "https://images.unsplash.com/photo-1608063615781-e2ef8c6dcaea?auto=format&fit=crop&w=500&h=500",
       "https://images.unsplash.com/photo-1594938291221-94f18cbb5660?auto=format&fit=crop&w=500&h=500",
       "https://images.unsplash.com/photo-1611312449408-fcece27cdbb7?auto=format&fit=crop&w=500&h=500"
     ],
@@ -562,6 +562,48 @@ const sampleOffers = [
   }
 ];
 
+// Sample orders data for testing
+const sampleOrders = [
+  {
+    userId: "sample-user-id",
+    orderDate: new Date().toISOString(),
+    orderItems: [
+      {
+        productId: "sample-product-id-1",
+        name: "Classic Moleskin Jacket",
+        price: 199.99,
+        discount: 20,
+        quantity: 1,
+        image: "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&w=500&h=500"
+      },
+      {
+        productId: "sample-product-id-2",
+        name: "Corduroy Trousers",
+        price: 89.99,
+        discount: 0,
+        quantity: 2,
+        image: "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?auto=format&fit=crop&w=500&h=500"
+      }
+    ],
+    shippingAddress: {
+      fullName: "John Doe",
+      addressLine1: "123 Main St",
+      addressLine2: "Apt 4B",
+      city: "New York",
+      state: "NY",
+      postalCode: "10001",
+      country: "United States"
+    },
+    paymentMethod: "Credit Card",
+    paymentId: "sample-payment-id",
+    subtotal: 379.97,
+    shippingCost: 0,
+    discount: 39.99,
+    total: 339.98,
+    status: "completed"
+  }
+];
+
 // Function to check if collection is empty
 const isCollectionEmpty = async (collectionName: string): Promise<boolean> => {
   const snapshot = await getDocs(collection(db, collectionName));
@@ -614,12 +656,32 @@ const initializeOffers = async (forceReset = false): Promise<void> => {
   console.log(`Added ${sampleOffers.length} offers to Firestore.`);
 };
 
+// Function to initialize orders
+const initializeOrders = async (forceReset = false): Promise<void> => {
+  const isEmpty = await isCollectionEmpty('orders');
+  
+  if (!isEmpty && !forceReset) {
+    console.log('Orders collection already contains data. Skipping initialization.');
+    return;
+  }
+  
+  if (!isEmpty && forceReset) {
+    await clearCollection('orders');
+  }
+  
+  const ordersCollection = collection(db, 'orders');
+  const addPromises = sampleOrders.map(order => addDoc(ordersCollection, order));
+  await Promise.all(addPromises);
+  console.log(`Added ${sampleOrders.length} sample orders to Firestore.`);
+};
+
 // Main initialization function
 export const initializeFirestore = async (forceReset = false): Promise<void> => {
   try {
     console.log('Starting Firestore initialization...');
     await initializeProducts(forceReset);
     await initializeOffers(forceReset);
+    await initializeOrders(forceReset);
     console.log('Firestore initialization completed successfully.');
   } catch (error) {
     console.error('Error initializing Firestore:', error);

@@ -10,6 +10,7 @@ import FirestoreInitializer from './components/FirestoreInitializer'
 import SearchPage from './pages/SearchPage'
 import ProductDetailsPage from './pages/ProductDetailsPage'
 import CartPage from './pages/CartPage'
+import OrderHistoryPage from './pages/OrderHistoryPage'
 
 const theme = extendTheme({
   styles: {
@@ -52,6 +53,7 @@ function App() {
                 <Route path="/search" element={<SearchPage />} />
                 <Route path="/product/:productId" element={<ProductDetailsPage />} />
                 <Route path="/cart" element={<CartPage />} />
+                <Route path="/orders" element={<OrderHistoryPage />} />
               </Routes>
             </Box>
           </Router>
