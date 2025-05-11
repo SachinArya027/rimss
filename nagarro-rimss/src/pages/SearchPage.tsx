@@ -18,11 +18,6 @@ import {
   useColorModeValue,
   Spinner,
   Center,
-  Accordion,
-  AccordionItem,
-  AccordionButton,
-  AccordionPanel,
-  AccordionIcon,
   Flex,
   useBreakpointValue,
   Drawer,
@@ -143,11 +138,14 @@ const SearchPage = () => {
       // Use provided filters or current state
       const filtersToUse = searchFilters || filters;
       
-      // Create a clean filter object without 'all' values
+      // Create a clean filter object without 'all' values and use current priceRange state
       const cleanFilters: ProductSearchFilters = {
         ...filtersToUse,
         category: filtersToUse.category === 'all' ? undefined : filtersToUse.category,
-        color: filtersToUse.color === 'all' ? undefined : filtersToUse.color
+        color: filtersToUse.color === 'all' ? undefined : filtersToUse.color,
+        // Use the current priceRange values if no searchFilters are provided
+        minPrice: searchFilters ? filtersToUse.minPrice : priceRange[0],
+        maxPrice: searchFilters ? filtersToUse.maxPrice : priceRange[1]
       };
       
       // Only update URL if filters were not provided (meaning this was triggered by a user action, not URL change)
@@ -158,8 +156,9 @@ const SearchPage = () => {
         if (filtersToUse.category && filtersToUse.category !== 'all') newSearchParams.set('category', filtersToUse.category);
         if (filtersToUse.color && filtersToUse.color !== 'all') newSearchParams.set('color', filtersToUse.color);
         if (filtersToUse.discountedOnly) newSearchParams.set('discounted', 'true');
-        if (filtersToUse.minPrice !== undefined && filtersToUse.minPrice !== 0) newSearchParams.set('minPrice', filtersToUse.minPrice.toString());
-        if (filtersToUse.maxPrice !== undefined && filtersToUse.maxPrice !== 500) newSearchParams.set('maxPrice', filtersToUse.maxPrice.toString());
+        // Use priceRange state for the URL parameters
+        if (priceRange[0] !== 0) newSearchParams.set('minPrice', priceRange[0].toString());
+        if (priceRange[1] !== 500) newSearchParams.set('maxPrice', priceRange[1].toString());
         
         setSearchParams(newSearchParams);
       }
@@ -197,86 +196,69 @@ const SearchPage = () => {
     <VStack align="stretch" spacing={6} width="100%">
       <Heading size="md">Filters</Heading>
       
-      <Accordion defaultIndex={[0, 1, 2]} allowMultiple>
-        {/* Category Filter */}
-        <AccordionItem borderTop="none">
-          <AccordionButton px={0}>
-            <Box flex="1" textAlign="left" fontWeight="medium">
-              Category
-            </Box>
-            <AccordionIcon />
-          </AccordionButton>
-          <AccordionPanel pb={4} px={0}>
-            <Select 
-              value={filters.category || 'all'} 
-              onChange={handleCategoryChange}
-              bg={bgColor}
-              size="sm"
-            >
-              {categories.map(category => (
-                <option key={category} value={category}>
-                  {category.charAt(0).toUpperCase() + category.slice(1)}
-                </option>
-              ))}
-            </Select>
-          </AccordionPanel>
-        </AccordionItem>
-        
-        {/* Color Filter */}
-        <AccordionItem>
-          <AccordionButton px={0}>
-            <Box flex="1" textAlign="left" fontWeight="medium">
-              Color
-            </Box>
-            <AccordionIcon />
-          </AccordionButton>
-          <AccordionPanel pb={4} px={0}>
-            <Select 
-              value={filters.color || 'all'} 
-              onChange={handleColorChange}
-              bg={bgColor}
-              size="sm"
-            >
-              {colors.map(color => (
-                <option key={color} value={color}>
-                  {color.charAt(0).toUpperCase() + color.slice(1)}
-                </option>
-              ))}
-            </Select>
-          </AccordionPanel>
-        </AccordionItem>
-        
-        {/* Price Range Filter */}
-        <AccordionItem>
-          <AccordionButton px={0}>
-            <Box flex="1" textAlign="left" fontWeight="medium">
-              Price Range
-            </Box>
-            <AccordionIcon />
-          </AccordionButton>
-          <AccordionPanel pb={4} px={0}>
-            <Text fontSize="sm" mb={2}>
-              ${priceRange[0]} - ${priceRange[1]}
-            </Text>
-            <RangeSlider
-              aria-label={['min', 'max']}
-              defaultValue={[0, 500]}
-              min={0}
-              max={500}
-              step={10}
-              value={priceRange}
-              onChange={handlePriceRangeChange}
-              onChangeEnd={handlePriceRangeChangeEnd}
-            >
-              <RangeSliderTrack>
-                <RangeSliderFilledTrack />
-              </RangeSliderTrack>
-              <RangeSliderThumb index={0} />
-              <RangeSliderThumb index={1} />
-            </RangeSlider>
-          </AccordionPanel>
-        </AccordionItem>
-      </Accordion>
+      {/* Category Filter */}
+      <Box>
+        <Box mb={2} fontWeight="medium">
+          Category
+        </Box>
+        <Select 
+          value={filters.category || 'all'} 
+          onChange={handleCategoryChange}
+          bg={bgColor}
+          size="sm"
+        >
+          {categories.map(category => (
+            <option key={category} value={category}>
+              {category.charAt(0).toUpperCase() + category.slice(1)}
+            </option>
+          ))}
+        </Select>
+      </Box>
+      
+      {/* Color Filter */}
+      <Box>
+        <Box mb={2} fontWeight="medium">
+          Color
+        </Box>
+        <Select 
+          value={filters.color || 'all'} 
+          onChange={handleColorChange}
+          bg={bgColor}
+          size="sm"
+        >
+          {colors.map(color => (
+            <option key={color} value={color}>
+              {color.charAt(0).toUpperCase() + color.slice(1)}
+            </option>
+          ))}
+        </Select>
+      </Box>
+      
+      {/* Price Range Filter */}
+      <Box>
+        <Box mb={2} fontWeight="medium">
+          Price Range
+        </Box>
+        <Text fontSize="sm" mb={2}>
+          ${priceRange[0]} - ${priceRange[1]}
+        </Text>
+        <RangeSlider
+          aria-label={['min', 'max']}
+          defaultValue={[0, 500]}
+          min={0}
+          max={500}
+          step={10}
+          value={priceRange}
+          onChange={handlePriceRangeChange}
+          onChangeEnd={handlePriceRangeChangeEnd}
+        >
+          <RangeSliderTrack>
+            <RangeSliderFilledTrack />
+          </RangeSliderTrack>
+          <RangeSliderThumb index={0} />
+          <RangeSliderThumb index={1} />
+        </RangeSlider>
+      </Box>
       
       <Box>
         <Checkbox 

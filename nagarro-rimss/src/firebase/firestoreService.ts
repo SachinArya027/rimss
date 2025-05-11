@@ -93,18 +93,13 @@ export const searchProducts = async (filters: ProductSearchFilters): Promise<Pro
   const productsQuery = collection(db, 'products');
   const constraints = [];
   
-  // Apply category filter if provided
-  if (filters.category) {
+  // Apply category filter if provided - this is our primary filter
+  if (filters.category && filters.category !== 'all') {
     constraints.push(where('category', '==', filters.category));
   }
   
-  // Apply discounted only filter if true
-  if (filters.discountedOnly) {
-    constraints.push(where('discount', '>', 0));
-  }
-  
-  // We can only use one composite filter in Firestore without creating indexes
-  // So we'll apply the most specific filter in the query and handle the rest in memory
+  // We'll handle discount filter in memory to avoid composite index issues
+  // Apply only the category filter in the main Firestore query
   let queryWithConstraints;
   if (constraints.length > 0) {
     queryWithConstraints = query(productsQuery, ...constraints);
@@ -115,13 +110,35 @@ export const searchProducts = async (filters: ProductSearchFilters): Promise<Pro
   const productsSnapshot = await getDocs(queryWithConstraints);
   let products = productsSnapshot.docs.map(doc => productConverter.fromFirestore(doc));
   
-  // Apply remaining filters in memory
-  if (filters.minPrice !== undefined) {
-    products = products.filter(product => product.price >= filters.minPrice!);
+  // Apply all remaining filters in memory
+  
+  // Apply discounted only filter in memory
+  if (filters.discountedOnly) {
+    products = products.filter(product => 
+      product.discount !== undefined && product.discount > 0
+    );
   }
   
-  if (filters.maxPrice !== undefined) {
-    products = products.filter(product => product.price <= filters.maxPrice!);
+  // Handle actual price after discount
+  if (filters.minPrice !== undefined || filters.maxPrice !== undefined) {
+    products = products.filter(product => {
+      // Calculate actual price considering any discount
+      const actualPrice = product.discount
+        ? product.price * (1 - product.discount / 100)
+        : product.price;
+        
+      // Apply min price filter if provided
+      if (filters.minPrice !== undefined && actualPrice < filters.minPrice) {
+        return false;
+      }
+      
+      // Apply max price filter if provided
+      if (filters.maxPrice !== undefined && actualPrice > filters.maxPrice) {
+        return false;
+      }
+      
+      return true;
+    });
   }
   
   if (filters.searchTerm) {
@@ -132,7 +149,7 @@ export const searchProducts = async (filters: ProductSearchFilters): Promise<Pro
     );
   }
   
-  if (filters.color) {
+  if (filters.color && filters.color !== 'all') {
     const colorLower = filters.color.toLowerCase();
     products = products.filter(product => 
       product.color?.toLowerCase() === colorLower
