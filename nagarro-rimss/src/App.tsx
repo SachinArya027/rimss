@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import HeroCarousel from './components/HeroCarousel'
+import RunningBanner from './components/RunningBanner'
 import FeaturedProducts from './components/FeaturedProducts'
 import LatestOffers from './components/LatestOffers'
 import AuthProvider from './contexts/AuthProvider'
@@ -51,6 +52,7 @@ function App() {
                   <Route path="/" element={
                     <Box as="main" pt="64px">
                       <HeroCarousel />
+                      <RunningBanner />
                       <Box py={8}>
                         <FeaturedProducts />
                         <LatestOffers />
