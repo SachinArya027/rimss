@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { Box, Container, Text, Button, Flex, useInterval } from '@chakra-ui/react';
 import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons';
+import { useNavigate } from 'react-router-dom';
 
 interface Slide {
   id: number;
@@ -37,6 +38,7 @@ const slides: Slide[] = [
 const HeroCarousel = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
+  const navigate = useNavigate();
 
   const nextSlide = useCallback(() => {
     setCurrentSlide((prev) => (prev + 1) % slides.length);
@@ -128,6 +130,7 @@ const HeroCarousel = () => {
                 <Button
                   size="lg"
                   colorScheme="blue"
+                  onClick={() => navigate('/search')}
                   _hover={{
                     transform: 'translateY(-2px)',
                     boxShadow: 'lg'
