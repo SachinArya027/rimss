@@ -7,9 +7,18 @@ interface FirestoreInitializerProps {
 }
 
 const FirestoreInitializer = ({ onInitialized }: FirestoreInitializerProps) => {
+  // React hooks must be called at the top level before any conditional returns
   const [isInitializing, setIsInitializing] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
   const toast = useToast();
+  
+  // Check if we're in development mode
+  const isDevelopment = import.meta.env.MODE === 'development';
+  
+  // If not in development mode, don't render anything
+  if (!isDevelopment) {
+    return null;
+  }
 
   const handleInitialize = async () => {
     setIsInitializing(true);
@@ -64,7 +73,8 @@ const FirestoreInitializer = ({ onInitialized }: FirestoreInitializerProps) => {
   };
 
   return (
-    <Box p={4} borderWidth="1px" borderRadius="md" bg="white" shadow="sm">
+    <Box p={4} borderWidth="1px" borderRadius="md" bg="white" shadow="sm" mt={4}>
+      <Text fontSize="xs" color="gray.500" mb={2}>Development Mode Only</Text>
       <Text mb={4} fontWeight="medium">Firestore Database Management</Text>
       <HStack spacing={4}>
         <Button 
