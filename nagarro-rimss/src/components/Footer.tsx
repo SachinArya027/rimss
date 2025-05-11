@@ -31,7 +31,7 @@ const Footer = () => {
       <Container as={Stack} maxW={'100%'} py={10}>
         <SimpleGrid columns={{ base: 1, sm: 2, md: 4 }} spacing={8}>
           <Stack align={'flex-start'}>
-            <Text fontWeight={'500'} fontSize={'lg'} mb={2}>Company</Text>
+            <Text fontWeight={'500'} fontSize={'lg'} mb={2}>YCompany - RIMSS</Text>
             <Link as={RouterLink} to="/about" _hover={{ color: linkHoverColor }}>About Us</Link>
             <Link as={RouterLink} to="/careers" _hover={{ color: linkHoverColor }}>Careers</Link>
             <Link as={RouterLink} to="/contact" _hover={{ color: linkHoverColor }}>Contact Us</Link>
@@ -79,7 +79,7 @@ const Footer = () => {
           justify={{ base: 'center', md: 'space-between' }}
           align={{ base: 'center', md: 'center' }}
         >
-          <Text>© {new Date().getFullYear()} RIMSS. All rights reserved</Text>
+          <Text>© {new Date().getFullYear()} YCompany - RIMSS. All rights reserved</Text>
           <Text mt={{ base: 2, md: 0 }}>
             Designed and developed for Nagarro Assignment
           </Text>
