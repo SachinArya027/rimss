@@ -1,4 +1,5 @@
 
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Box,
@@ -28,11 +29,15 @@ import {
 import { CloseIcon, AddIcon, MinusIcon } from '@chakra-ui/icons';
 import { Link as RouterLink } from 'react-router-dom';
 import { useCart } from '../contexts/useCart';
+import { useAuth } from '../contexts/useAuth';
+import LoginModal from '../components/LoginModal';
 
 const CartPage = () => {
   const { cartItems, removeFromCart, updateQuantity, clearCart, totalItems, totalPrice } = useCart();
+  const { currentUser } = useAuth();
   const navigate = useNavigate();
   const toast = useToast();
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   
   // Colors
   const bgColor = useColorModeValue('white', 'gray.800');
@@ -43,6 +48,13 @@ const CartPage = () => {
   
   // Handle checkout
   const handleCheckout = () => {
+    // Check if user is signed in
+    if (!currentUser) {
+      // Open login modal if user is not signed in
+      setIsLoginModalOpen(true);
+      return;
+    }
+    
     toast({
       title: 'Proceeding to checkout',
       description: 'This feature is not yet implemented.',
@@ -52,6 +64,11 @@ const CartPage = () => {
     });
     // In a real app, this would navigate to the checkout page
     // navigate('/checkout');
+  };
+  
+  // Close login modal
+  const handleCloseLoginModal = () => {
+    setIsLoginModalOpen(false);
   };
   
   // Calculate shipping cost (free over $100)
@@ -85,6 +102,7 @@ const CartPage = () => {
   
   return (
     <Box pt="72px" pb={8} minH="calc(100vh - 64px)">
+      <LoginModal isOpen={isLoginModalOpen} onClose={handleCloseLoginModal} />
       <Container maxW="container.xl">
         <Heading mb={6}>Shopping Cart ({totalItems} {totalItems === 1 ? 'item' : 'items'})</Heading>
         
