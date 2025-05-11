@@ -40,11 +40,10 @@ const Navbar = () => {
 
           <Flex display={{ base: 'none', lg: 'flex' }} alignItems="center" flex={1} mx={8} width="100%">
             <ChakraStack direction="row" gap={10} mr={8} flexShrink={0}>
-              <Link href="/" color={textColor} _hover={{ color: hoverColor }}>Home</Link>
+              <Link href="/search?discounted=true" color={textColor} _hover={{ color: hoverColor }}>Sale</Link>
               <Link href="/search?category=men" color={textColor} _hover={{ color: hoverColor }}>Men</Link>
               <Link href="/search?category=women" color={textColor} _hover={{ color: hoverColor }}>Women</Link>
               <Link href="/search?category=accessories" color={textColor} _hover={{ color: hoverColor }}>Accessories</Link>
-              <Link href="/search?discounted=true" color={textColor} _hover={{ color: hoverColor }}>Sale</Link>
             </ChakraStack>
             
             {/* Desktop Search Bar */}
@@ -146,7 +145,6 @@ const Navbar = () => {
               onClick={toggleTheme}
               size="md"
             />
-            
             <IconButton
               onClick={onMenuOpen}
               aria-label="Open menu"
@@ -167,17 +165,13 @@ const Navbar = () => {
           <DrawerHeader borderBottomWidth="1px">Menu</DrawerHeader>
           <DrawerBody>
             <ChakraStack spacing={4}>
-              <Link href="/" py={2} color={textColor}>Home</Link>
+              {currentUser && <UserProfile />}
               <Link href="/search?category=men" py={2} color={textColor}>Men</Link>
               <Link href="/search?category=women" py={2} color={textColor}>Women</Link>
               <Link href="/search?category=accessories" py={2} color={textColor}>Accessories</Link>
               <Link href="/search?discounted=true" py={2} color={textColor}>Sale</Link>
               <Link href="/search" py={2} color={textColor}>Search Products</Link>
-              {currentUser ? (
-                <Button variant="outline" w="full" onClick={onMenuClose}>
-                  <Link href="/profile" py={2} color={textColor}>My Profile</Link>
-                </Button>
-              ) : (
+              {!currentUser && (
                 <Button colorScheme="blue" w="full" onClick={() => {
                   onMenuClose();
                   onLoginOpen();
@@ -185,16 +179,6 @@ const Navbar = () => {
                   Sign In
                 </Button>
               )}
-              <Button 
-                as={RouterLink} 
-                to="/cart" 
-                w="full" 
-                leftIcon={<FiShoppingCart />} 
-                color={textColor}
-                onClick={onMenuClose}
-              >
-                Cart ({totalItems})
-              </Button>
             </ChakraStack>
           </DrawerBody>
         </DrawerContent>
