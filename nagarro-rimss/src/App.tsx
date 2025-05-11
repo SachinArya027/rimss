@@ -1,6 +1,7 @@
-import { ChakraProvider, Box, extendTheme, Container, ColorModeScript } from '@chakra-ui/react'
+import { ChakraProvider, Box, extendTheme, Container, ColorModeScript, Flex } from '@chakra-ui/react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import Navbar from './components/Navbar'
+import Footer from './components/Footer'
 import HeroCarousel from './components/HeroCarousel'
 import FeaturedProducts from './components/FeaturedProducts'
 import LatestOffers from './components/LatestOffers'
@@ -43,27 +44,30 @@ function App() {
       <AuthProvider>
         <CartProvider>
           <Router>
-            <Box minH="100vh">
+            <Flex direction="column" minH="100vh">
               <Navbar />
-              <Routes>
-                <Route path="/" element={
-                  <Box as="main" pt="64px">
-                    <HeroCarousel />
-                    <Box py={8}>
-                      <FeaturedProducts />
-                      <LatestOffers />
+              <Box flex="1">
+                <Routes>
+                  <Route path="/" element={
+                    <Box as="main" pt="64px">
+                      <HeroCarousel />
+                      <Box py={8}>
+                        <FeaturedProducts />
+                        <LatestOffers />
+                      </Box>
+                      <Container maxW="container.xl" py={8}>
+                        <FirestoreInitializer />
+                      </Container>
                     </Box>
-                    <Container maxW="container.xl" py={8}>
-                      <FirestoreInitializer />
-                    </Container>
-                  </Box>
-                } />
-                <Route path="/search" element={<SearchPage />} />
-                <Route path="/product/:productId" element={<ProductDetailsPage />} />
-                <Route path="/cart" element={<CartPage />} />
-                <Route path="/orders" element={<OrderHistoryPage />} />
-              </Routes>
-            </Box>
+                  } />
+                  <Route path="/search" element={<SearchPage />} />
+                  <Route path="/product/:productId" element={<ProductDetailsPage />} />
+                  <Route path="/cart" element={<CartPage />} />
+                  <Route path="/orders" element={<OrderHistoryPage />} />
+                </Routes>
+              </Box>
+              <Footer />
+            </Flex>
           </Router>
         </CartProvider>
       </AuthProvider>
