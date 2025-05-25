@@ -33,7 +33,7 @@ const Navbar = () => {
       <Container maxW="100%" px={4}>
         <Flex h={16} alignItems="center" justifyContent="space-between">
           <Flex alignItems="center" mr={{ base: 2, md: 0 }}>
-            <Link href="/" _hover={{ textDecoration: 'none' }}>
+            <Link href="/" _hover={{ textDecoration: 'none' }} bg="white" padding={1} borderRadius={4}>
               <Image src={LogoSvg} alt="RIMSS Logo" height={{ base: "30px", md: "40px" }} />
             </Link>
           </Flex>
