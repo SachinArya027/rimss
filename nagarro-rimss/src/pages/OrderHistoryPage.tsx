@@ -27,6 +27,7 @@ import { useAuth } from '../contexts/useAuth';
 import { getUserOrders } from '../services/orderService';
 import type { Order } from '../services/orderService';
 import { formatDate } from '../utils/formatters';
+import SEO from '../components/SEO';
 
 // Helper function to format date
 const formatOrderDate = (dateString: string): string => {
@@ -97,6 +98,12 @@ const OrderHistoryPage: React.FC = () => {
   if (loading) {
     return (
       <Box pt="72px" pb={8} minH="calc(100vh - 64px)">
+        <SEO 
+          title="Loading Order History | RIMSS"
+          description="View your order history and track your purchases at RIMSS."
+          canonical="/orders"
+          keywords="order history, purchase history, track orders, RIMSS, online shopping"
+        />
         <Container maxW="container.xl">
           <Heading mb={6}>Order History</Heading>
           <VStack spacing={4} align="stretch">
@@ -125,6 +132,12 @@ const OrderHistoryPage: React.FC = () => {
   if (error) {
     return (
       <Box pt="72px" pb={8} minH="calc(100vh - 64px)">
+        <SEO 
+          title="Order History Error | RIMSS"
+          description="We encountered an error loading your order history. Please try again later."
+          canonical="/orders"
+          keywords="order history, purchase history, RIMSS, online shopping"
+        />
         <Container maxW="container.xl">
           <Heading mb={6}>Order History</Heading>
           <Alert status="error" borderRadius="md">
@@ -143,6 +156,12 @@ const OrderHistoryPage: React.FC = () => {
   if (orders.length === 0) {
     return (
       <Box pt="72px" pb={8} minH="calc(100vh - 64px)">
+        <SEO 
+          title="Order History | RIMSS"
+          description="View your order history and track your purchases at RIMSS."
+          canonical="/orders"
+          keywords="order history, purchase history, track orders, RIMSS, online shopping"
+        />
         <Container maxW="container.xl">
           <Heading mb={6}>Order History</Heading>
           <Box 
@@ -153,67 +172,82 @@ const OrderHistoryPage: React.FC = () => {
             borderColor={borderColor}
             textAlign="center"
           >
-            <Text fontSize="lg" mb={4}>You haven't placed any orders yet.</Text>
-            <Button 
-              as={RouterLink} 
-              to="/search" 
-              colorScheme="blue"
-            >
-              Start Shopping
-            </Button>
+            <VStack spacing={4}>
+              <Text fontSize="lg">You haven't placed any orders yet.</Text>
+              <Button 
+                as={RouterLink} 
+                to="/search" 
+                colorScheme="blue"
+                aria-label="Start shopping"
+              >
+                Start Shopping
+              </Button>
+            </VStack>
           </Box>
         </Container>
       </Box>
     );
   }
   
-  // Render orders
   return (
     <Box pt="72px" pb={8} minH="calc(100vh - 64px)">
+      <SEO 
+        title="Order History | RIMSS"
+        description={`View your ${orders.length} order${orders.length === 1 ? '' : 's'} and track your purchases at RIMSS.`}
+        canonical="/orders"
+        keywords="order history, purchase history, track orders, order status, RIMSS, online shopping"
+      />
       <Container maxW="container.xl">
         <Heading mb={6}>Order History</Heading>
         
-        <VStack spacing={6} align="stretch">
+        <VStack spacing={4} align="stretch">
           {orders.map((order) => (
             <Accordion 
               key={order.id} 
               allowToggle 
               borderWidth="1px" 
-              borderRadius="lg"
+              borderRadius="lg" 
               bg={bgColor}
               borderColor={borderColor}
             >
               <AccordionItem border="none">
-                <AccordionButton py={4} _hover={{ bg: hoverBgColor }}>
-                  <Box flex="1" textAlign="left">
-                    <Flex 
-                      direction={{ base: 'column', md: 'row' }} 
-                      justify="space-between" 
-                      align={{ base: 'start', md: 'center' }}
-                      gap={2}
-                    >
-                      <HStack>
-                        <Text fontWeight="bold">Order #{order.id?.substring(0, 8)}</Text>
-                        <Badge colorScheme={getStatusColor(order.status)}>
-                          {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                        </Badge>
-                      </HStack>
-                      
-                      <HStack spacing={4}>
-                        <Text color="gray.500">
-                          {formatOrderDate(order.orderDate)}
-                        </Text>
-                        <Text fontWeight="bold">
-                          ${order.total.toFixed(2)}
-                        </Text>
-                      </HStack>
-                    </Flex>
-                  </Box>
-                  <AccordionIcon />
-                </AccordionButton>
-                
+                <h2>
+                  <AccordionButton 
+                    py={4}
+                    _hover={{ bg: hoverBgColor }}
+                    _expanded={{ bg: hoverBgColor }}
+                  >
+                    <Box flex="1" textAlign="left">
+                      <Flex 
+                        direction={{ base: 'column', md: 'row' }} 
+                        justify="space-between"
+                        align={{ base: 'start', md: 'center' }}
+                        gap={2}
+                      >
+                        <HStack>
+                          <Text fontWeight="bold">
+                            Order #{order.id ? order.id.substring(0, 8) : 'Unknown'}
+                          </Text>
+                          <Badge colorScheme={getStatusColor(order.status)}>
+                            {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                          </Badge>
+                        </HStack>
+                        
+                        <HStack spacing={4}>
+                          <Text fontSize="sm" color="gray.500">
+                            {formatOrderDate(order.orderDate)}
+                          </Text>
+                          <Text fontWeight="bold">
+                            ${order.total.toFixed(2)}
+                          </Text>
+                        </HStack>
+                      </Flex>
+                    </Box>
+                    <AccordionIcon />
+                  </AccordionButton>
+                </h2>
                 <AccordionPanel pb={4}>
-                  <VStack align="stretch" spacing={4}>
+                  <VStack spacing={6} align="stretch">
                     {/* Order Items */}
                     <Box>
                       <Heading size="sm" mb={3}>Items</Heading>
@@ -221,20 +255,20 @@ const OrderHistoryPage: React.FC = () => {
                         columns={{ base: 1, md: 2 }} 
                         spacing={4}
                       >
-                        {order.orderItems.map((item, index) => (
+                        {order.orderItems.map((item) => (
                           <HStack 
-                            key={`${order.id}-${index}`} 
+                            key={item.productId} 
                             p={3} 
                             borderWidth="1px" 
-                            borderRadius="md"
+                            borderRadius="md" 
                             borderColor={borderColor}
                             spacing={4}
                           >
                             <Image 
                               src={item.image} 
-                              alt={item.name} 
-                              boxSize="60px" 
-                              objectFit="cover" 
+                              alt={item.name}
+                              boxSize="60px"
+                              objectFit="cover"
                               borderRadius="md"
                             />
                             <Box flex="1">
