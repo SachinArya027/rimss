@@ -39,6 +39,7 @@ import LoginModal from '../components/LoginModal';
 import StripeCheckout from '../components/StripeCheckout';
 import { createOrder } from '../services/orderService';
 import type { ShippingAddress } from '../services/orderService';
+import SEO from '../components/SEO';
 
 const CartPage = () => {
   const { cartItems, removeFromCart, updateQuantity, clearCart, totalItems, totalPrice } = useCart();
@@ -154,197 +155,127 @@ const CartPage = () => {
     setIsLoginModalOpen(false);
   };
   
-  // Calculate shipping cost (free over $100)
-  const shippingCost = totalPrice >= 100 ? 0 : 10;
+  // Calculate shipping cost
+  const shippingCost = totalPrice >= 100 ? 0 : 9.99;
   
-  // Calculate total with shipping
+  // Calculate order total
   const orderTotal = totalPrice + shippingCost;
-  
-  // Empty cart view
-  if (cartItems.length === 0) {
-    return (
-      <Box pt="72px" pb={8} minH="calc(100vh - 64px)">
-        <Container maxW="container.xl">
-          <VStack spacing={8} py={10} align="center">
-            <Heading size="xl">Your Cart is Empty</Heading>
-            <Text color="gray.600">
-              Looks like you haven't added any products to your cart yet.
-            </Text>
-            <Button 
-              colorScheme="blue" 
-              size="lg"
-              onClick={() => navigate('/search')}
-            >
-              Continue Shopping
-            </Button>
-          </VStack>
-        </Container>
-      </Box>
-    );
-  }
   
   return (
     <Box pt="72px" pb={8} minH="calc(100vh - 64px)">
-      <LoginModal isOpen={isLoginModalOpen} onClose={handleCloseLoginModal} />
+      <SEO 
+        title="Shopping Cart | RIMSS"
+        description="Review your shopping cart items, update quantities, and proceed to checkout. Free shipping on orders over $100."
+        canonical="/cart"
+        keywords="shopping cart, checkout, online shopping, RIMSS, secure checkout"
+      />
       
-      {/* Stripe Checkout Modal */}
-      <Modal isOpen={isCheckoutModalOpen} onClose={handleCloseCheckoutModal} size="lg">
+      {/* Login Modal */}
+      <LoginModal 
+        isOpen={isLoginModalOpen} 
+        onClose={handleCloseLoginModal} 
+        onSuccess={() => {
+          setIsLoginModalOpen(false);
+          setIsCheckoutModalOpen(true);
+        }}
+      />
+      
+      {/* Checkout Modal */}
+      <Modal isOpen={isCheckoutModalOpen} onClose={handleCloseCheckoutModal} size="xl">
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>Checkout</ModalHeader>
           <ModalCloseButton />
           <ModalBody pb={6}>
             <StripeCheckout 
-              amount={Math.round(orderTotal * 100)} // Convert to cents for Stripe
-              onClose={handleCloseCheckoutModal}
+              amount={orderTotal * 100} // Convert to cents for Stripe
               onSuccess={handlePaymentSuccess}
+              onCancel={handleCloseCheckoutModal}
             />
           </ModalBody>
         </ModalContent>
       </Modal>
       
       <Container maxW="container.xl">
-        <Heading mb={6}>Shopping Cart ({totalItems} {totalItems === 1 ? 'item' : 'items'})</Heading>
-        
-        <Flex 
-          direction={{ base: 'column', lg: 'row' }} 
-          gap={8}
-        >
-          {/* Cart Items */}
+        {cartItems.length === 0 ? (
           <Box 
-            flex={3} 
-            bg={bgColor} 
-            p={6} 
-            borderRadius="lg" 
-            borderWidth="1px" 
+            textAlign="center" 
+            py={10}
+            bg={bgColor}
+            borderRadius="lg"
+            borderWidth="1px"
             borderColor={borderColor}
           >
-            {isMobile ? (
-              // Mobile cart view
-              <VStack spacing={6} align="stretch">
-                {cartItems.map((item) => {
-                  const discountedPrice = item.product.discount 
-                    ? item.product.price * (1 - item.product.discount / 100) 
-                    : item.product.price;
-                  
-                  return (
-                    <Box 
-                      key={item.product.id} 
-                      p={4} 
-                      borderWidth="1px" 
-                      borderRadius="md" 
-                      borderColor={borderColor}
-                    >
-                      <Flex gap={4}>
-                        <Link as={RouterLink} to={`/product/${item.product.id}`}>
-                          <Image 
-                            src={item.product.images[0]} 
-                            alt={item.product.name}
-                            boxSize="80px"
-                            objectFit="cover"
-                            borderRadius="md"
-                          />
-                        </Link>
-                        
-                        <VStack flex={1} align="start" spacing={2}>
-                          <Flex w="100%" justify="space-between">
-                            <Link 
-                              as={RouterLink} 
-                              to={`/product/${item.product.id}`}
-                              fontWeight="bold"
-                              _hover={{ color: 'blue.500' }}
-                            >
-                              {item.product.name}
-                            </Link>
-                            <IconButton
-                              aria-label="Remove item"
-                              icon={<CloseIcon />}
-                              size="sm"
-                              variant="ghost"
-                              colorScheme="red"
-                              onClick={() => removeFromCart(item.product.id)}
-                            />
-                          </Flex>
-                          
-                          {item.product.category && (
-                            <Badge colorScheme="green" fontSize="xs">
-                              {item.product.category}
-                            </Badge>
-                          )}
-                          
-                          <Text fontWeight="bold" color="blue.600">
-                            ${discountedPrice.toFixed(2)}
-                            {item.product.discount && (
-                              <Text as="span" color="gray.500" fontSize="sm" textDecoration="line-through" ml={2}>
-                                ${item.product.price.toFixed(2)}
-                              </Text>
-                            )}
-                          </Text>
-                          
-                          <HStack>
-                            <IconButton
-                              aria-label="Decrease quantity"
-                              icon={<MinusIcon />}
-                              size="xs"
-                              onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
-                              isDisabled={item.quantity <= 1}
-                            />
-                            <Text fontWeight="medium" width="30px" textAlign="center">
-                              {item.quantity}
-                            </Text>
-                            <IconButton
-                              aria-label="Increase quantity"
-                              icon={<AddIcon />}
-                              size="xs"
-                              onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
-                              isDisabled={item.product.stock !== undefined && item.quantity >= item.product.stock}
-                            />
-                          </HStack>
-                          
-                          <Text fontWeight="bold">
-                            Subtotal: ${(discountedPrice * item.quantity).toFixed(2)}
-                          </Text>
-                        </VStack>
-                      </Flex>
-                    </Box>
-                  );
-                })}
-              </VStack>
-            ) : (
-              // Desktop cart view
-              <TableContainer>
-                <Table variant="simple">
-                  <Thead>
-                    <Tr>
-                      <Th width="100px">Product</Th>
-                      <Th>Name</Th>
-                      <Th>Price</Th>
-                      <Th>Quantity</Th>
-                      <Th isNumeric>Subtotal</Th>
-                      <Th width="50px"></Th>
-                    </Tr>
-                  </Thead>
-                  <Tbody>
-                    {cartItems.map((item) => {
+            <VStack spacing={6}>
+              <Heading size="xl">Your Cart is Empty</Heading>
+              <Text>Looks like you haven't added any products to your cart yet.</Text>
+              <Button 
+                as={RouterLink} 
+                to="/search" 
+                colorScheme="blue" 
+                size="lg"
+                aria-label="Start shopping"
+              >
+                Start Shopping
+              </Button>
+            </VStack>
+          </Box>
+        ) : (
+          <>
+            <Heading mb={6}>Shopping Cart ({totalItems} {totalItems === 1 ? 'item' : 'items'})</Heading>
+            
+            <Flex 
+              direction={{ base: 'column', lg: 'row' }} 
+              gap={8}
+            >
+              {/* Cart Items */}
+              <Box 
+                flex={2} 
+                bg={bgColor} 
+                p={6} 
+                borderRadius="lg" 
+                borderWidth="1px" 
+                borderColor={borderColor}
+              >
+                {isMobile ? (
+                  // Mobile view - card layout
+                  <VStack spacing={4} align="stretch">
+                    {cartItems.map(item => {
+                      // Calculate discounted price if applicable
                       const discountedPrice = item.product.discount 
                         ? item.product.price * (1 - item.product.discount / 100) 
                         : item.product.price;
                       
                       return (
-                        <Tr key={item.product.id}>
-                          <Td>
-                            <Link as={RouterLink} to={`/product/${item.product.id}`}>
-                              <Image 
-                                src={item.product.images[0]} 
-                                alt={item.product.name}
-                                boxSize="80px"
-                                objectFit="cover"
-                                borderRadius="md"
-                              />
-                            </Link>
-                          </Td>
-                          <Td>
-                            <VStack align="start" spacing={1}>
+                        <Box 
+                          key={item.product.id} 
+                          borderWidth="1px" 
+                          borderRadius="md" 
+                          p={4}
+                          position="relative"
+                        >
+                          <IconButton
+                            aria-label="Remove item"
+                            icon={<CloseIcon />}
+                            size="xs"
+                            position="absolute"
+                            top={2}
+                            right={2}
+                            colorScheme="red"
+                            variant="ghost"
+                            onClick={() => removeFromCart(item.product.id)}
+                          />
+                          
+                          <Flex gap={4}>
+                            <Image 
+                              src={item.product.images[0]} 
+                              alt={item.product.name}
+                              boxSize="80px"
+                              objectFit="cover"
+                              borderRadius="md"
+                            />
+                            
+                            <Box flex={1}>
                               <Link 
                                 as={RouterLink} 
                                 to={`/product/${item.product.id}`}
@@ -353,140 +284,245 @@ const CartPage = () => {
                               >
                                 {item.product.name}
                               </Link>
-                              {item.product.category && (
-                                <Badge colorScheme="green" fontSize="xs">
-                                  {item.product.category}
+                              
+                              {item.product.discount && (
+                                <Badge colorScheme="red" ml={2}>
+                                  {item.product.discount}% OFF
                                 </Badge>
                               )}
-                            </VStack>
-                          </Td>
-                          <Td>
-                            <Text fontWeight="bold" color="blue.600">
-                              ${discountedPrice.toFixed(2)}
-                              {item.product.discount && (
-                                <Text as="span" color="gray.500" fontSize="sm" textDecoration="line-through" ml={2}>
-                                  ${item.product.price.toFixed(2)}
-                                </Text>
-                              )}
-                            </Text>
-                          </Td>
-                          <Td>
-                            <HStack>
-                              <IconButton
-                                aria-label="Decrease quantity"
-                                icon={<MinusIcon />}
-                                size="sm"
-                                onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
-                                isDisabled={item.quantity <= 1}
-                              />
-                              <Text fontWeight="medium" width="30px" textAlign="center">
-                                {item.quantity}
-                              </Text>
-                              <IconButton
-                                aria-label="Increase quantity"
-                                icon={<AddIcon />}
-                                size="sm"
-                                onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
-                                isDisabled={item.product.stock !== undefined && item.quantity >= item.product.stock}
-                              />
-                            </HStack>
-                          </Td>
-                          <Td isNumeric fontWeight="bold">
-                            ${(discountedPrice * item.quantity).toFixed(2)}
-                          </Td>
-                          <Td>
-                            <IconButton
-                              aria-label="Remove item"
-                              icon={<CloseIcon />}
-                              size="sm"
-                              variant="ghost"
-                              colorScheme="red"
-                              onClick={() => removeFromCart(item.product.id)}
-                            />
-                          </Td>
-                        </Tr>
+                              
+                              <HStack mt={2} justify="space-between">
+                                <HStack>
+                                  <IconButton
+                                    aria-label="Decrease quantity"
+                                    icon={<MinusIcon />}
+                                    size="xs"
+                                    onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
+                                    isDisabled={item.quantity <= 1}
+                                  />
+                                  <Text fontWeight="medium">{item.quantity}</Text>
+                                  <IconButton
+                                    aria-label="Increase quantity"
+                                    icon={<AddIcon />}
+                                    size="xs"
+                                    onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
+                                    isDisabled={item.product.stock !== undefined && item.quantity >= item.product.stock}
+                                  />
+                                </HStack>
+                                
+                                <Box textAlign="right">
+                                  {item.product.discount && (
+                                    <Text 
+                                      as="span" 
+                                      fontSize="sm" 
+                                      textDecoration="line-through" 
+                                      color="gray.500"
+                                      mr={2}
+                                    >
+                                      ${(item.product.price * item.quantity).toFixed(2)}
+                                    </Text>
+                                  )}
+                                  <Text fontWeight="bold">
+                                    ${(discountedPrice * item.quantity).toFixed(2)}
+                                  </Text>
+                                </Box>
+                              </HStack>
+                            </Box>
+                          </Flex>
+                        </Box>
                       );
                     })}
-                  </Tbody>
-                </Table>
-              </TableContainer>
-            )}
-            
-            <Flex justify="space-between" mt={6}>
-              <Button 
-                variant="outline" 
-                leftIcon={<CloseIcon />}
-                onClick={clearCart}
-              >
-                Clear Cart
-              </Button>
+                  </VStack>
+                ) : (
+                  // Desktop view - table layout
+                  <TableContainer>
+                    <Table variant="simple">
+                      <Thead>
+                        <Tr>
+                          <Th width="50%">Product</Th>
+                          <Th>Price</Th>
+                          <Th>Quantity</Th>
+                          <Th isNumeric>Total</Th>
+                          <Th></Th>
+                        </Tr>
+                      </Thead>
+                      <Tbody>
+                        {cartItems.map(item => {
+                          // Calculate discounted price if applicable
+                          const discountedPrice = item.product.discount 
+                            ? item.product.price * (1 - item.product.discount / 100) 
+                            : item.product.price;
+                          
+                          return (
+                            <Tr key={item.product.id}>
+                              <Td>
+                                <Flex gap={4} align="center">
+                                  <Image 
+                                    src={item.product.images[0]} 
+                                    alt={item.product.name}
+                                    boxSize="60px"
+                                    objectFit="cover"
+                                    borderRadius="md"
+                                  />
+                                  <Box>
+                                    <Link 
+                                      as={RouterLink} 
+                                      to={`/product/${item.product.id}`}
+                                      fontWeight="bold"
+                                      _hover={{ color: 'blue.500' }}
+                                    >
+                                      {item.product.name}
+                                    </Link>
+                                    {item.product.discount && (
+                                      <Badge colorScheme="red" ml={2}>
+                                        {item.product.discount}% OFF
+                                      </Badge>
+                                    )}
+                                  </Box>
+                                </Flex>
+                              </Td>
+                              <Td>
+                                {item.product.discount ? (
+                                  <VStack align="start" spacing={0}>
+                                    <Text 
+                                      as="span" 
+                                      fontSize="sm" 
+                                      textDecoration="line-through" 
+                                      color="gray.500"
+                                    >
+                                      ${item.product.price.toFixed(2)}
+                                    </Text>
+                                    <Text fontWeight="bold" color="blue.600">
+                                      ${discountedPrice.toFixed(2)}
+                                    </Text>
+                                  </VStack>
+                                ) : (
+                                  <Text>${item.product.price.toFixed(2)}</Text>
+                                )}
+                              </Td>
+                              <Td>
+                                <HStack>
+                                  <IconButton
+                                    aria-label="Decrease quantity"
+                                    icon={<MinusIcon />}
+                                    size="sm"
+                                    onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
+                                    isDisabled={item.quantity <= 1}
+                                  />
+                                  <Text fontWeight="medium" width="30px" textAlign="center">
+                                    {item.quantity}
+                                  </Text>
+                                  <IconButton
+                                    aria-label="Increase quantity"
+                                    icon={<AddIcon />}
+                                    size="sm"
+                                    onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
+                                    isDisabled={item.product.stock !== undefined && item.quantity >= item.product.stock}
+                                  />
+                                </HStack>
+                              </Td>
+                              <Td isNumeric fontWeight="bold">
+                                ${(discountedPrice * item.quantity).toFixed(2)}
+                              </Td>
+                              <Td>
+                                <IconButton
+                                  aria-label="Remove item"
+                                  icon={<CloseIcon />}
+                                  size="sm"
+                                  variant="ghost"
+                                  colorScheme="red"
+                                  onClick={() => removeFromCart(item.product.id)}
+                                />
+                              </Td>
+                            </Tr>
+                          );
+                        })}
+                      </Tbody>
+                    </Table>
+                  </TableContainer>
+                )}
+                
+                <Flex justify="space-between" mt={6}>
+                  <Button 
+                    variant="outline" 
+                    leftIcon={<CloseIcon />}
+                    onClick={clearCart}
+                    aria-label="Clear cart"
+                  >
+                    Clear Cart
+                  </Button>
+                  
+                  <Button 
+                    as={RouterLink} 
+                    to="/search" 
+                    colorScheme="blue" 
+                    variant="outline"
+                    aria-label="Continue shopping"
+                  >
+                    Continue Shopping
+                  </Button>
+                </Flex>
+              </Box>
               
-              <Button 
-                as={RouterLink} 
-                to="/search" 
-                colorScheme="blue" 
-                variant="outline"
+              {/* Order Summary */}
+              <Box 
+                flex={1} 
+                bg={bgColor} 
+                p={6} 
+                borderRadius="lg" 
+                borderWidth="1px" 
+                borderColor={borderColor}
+                height="fit-content"
+                position="sticky"
+                top="80px"
+                aria-label="Order summary"
               >
-                Continue Shopping
-              </Button>
+                <Heading size="md" mb={4}>Order Summary</Heading>
+                
+                <VStack spacing={3} align="stretch">
+                  <Flex justify="space-between">
+                    <Text>Subtotal</Text>
+                    <Text fontWeight="bold">${totalPrice.toFixed(2)}</Text>
+                  </Flex>
+                  
+                  <Flex justify="space-between">
+                    <Text>Shipping</Text>
+                    <Text fontWeight="bold">
+                      {shippingCost === 0 ? 'Free' : `$${shippingCost.toFixed(2)}`}
+                    </Text>
+                  </Flex>
+                  
+                  {shippingCost > 0 && (
+                    <Text fontSize="sm" color="gray.500">
+                      Free shipping on orders over $100
+                    </Text>
+                  )}
+                  
+                  <Divider my={2} />
+                  
+                  <Flex justify="space-between" fontWeight="bold" fontSize="lg">
+                    <Text>Total</Text>
+                    <Text color="blue.600">${orderTotal.toFixed(2)}</Text>
+                  </Flex>
+                  
+                  <Button 
+                    colorScheme="blue" 
+                    size="lg" 
+                    mt={4}
+                    onClick={handleCheckout}
+                    aria-label="Proceed to checkout"
+                  >
+                    Proceed to Checkout
+                  </Button>
+                  
+                  <Text fontSize="sm" color="gray.500" mt={2} textAlign="center">
+                    Taxes calculated at checkout
+                  </Text>
+                </VStack>
+              </Box>
             </Flex>
-          </Box>
-          
-          {/* Order Summary */}
-          <Box 
-            flex={1} 
-            bg={bgColor} 
-            p={6} 
-            borderRadius="lg" 
-            borderWidth="1px" 
-            borderColor={borderColor}
-            height="fit-content"
-            position="sticky"
-            top="80px"
-          >
-            <Heading size="md" mb={4}>Order Summary</Heading>
-            
-            <VStack spacing={3} align="stretch">
-              <Flex justify="space-between">
-                <Text>Subtotal</Text>
-                <Text fontWeight="bold">${totalPrice.toFixed(2)}</Text>
-              </Flex>
-              
-              <Flex justify="space-between">
-                <Text>Shipping</Text>
-                <Text fontWeight="bold">
-                  {shippingCost === 0 ? 'Free' : `$${shippingCost.toFixed(2)}`}
-                </Text>
-              </Flex>
-              
-              {shippingCost > 0 && (
-                <Text fontSize="sm" color="gray.500">
-                  Free shipping on orders over $100
-                </Text>
-              )}
-              
-              <Divider my={2} />
-              
-              <Flex justify="space-between" fontWeight="bold" fontSize="lg">
-                <Text>Total</Text>
-                <Text color="blue.600">${orderTotal.toFixed(2)}</Text>
-              </Flex>
-              
-              <Button 
-                colorScheme="blue" 
-                size="lg" 
-                mt={4}
-                onClick={handleCheckout}
-              >
-                Proceed to Checkout
-              </Button>
-              
-              <Text fontSize="sm" color="gray.500" mt={2} textAlign="center">
-                Taxes calculated at checkout
-              </Text>
-            </VStack>
-          </Box>
-        </Flex>
+          </>
+        )}
       </Container>
     </Box>
   );

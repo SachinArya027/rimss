@@ -27,6 +27,7 @@ import { ChevronLeftIcon, ChevronRightIcon, StarIcon, AddIcon, MinusIcon } from 
 import { getProductById } from '../firebase/firestoreService';
 import type { Product } from '../firebase/firestoreService';
 import { useCart } from '../contexts/useCart';
+import SEO from '../components/SEO';
 
 const ProductDetailsPage = () => {
   const { productId } = useParams<{ productId: string }>();
@@ -98,10 +99,49 @@ const ProductDetailsPage = () => {
       setQuantity(newQuantity);
     }
   };
+
+  // Generate JSON-LD structured data for the product
+  const generateProductJsonLd = (product: Product) => {
+    // Calculate discounted price if discount exists
+    const discountedPrice = product.discount 
+      ? product.price * (1 - product.discount / 100) 
+      : product.price;
+
+    const jsonLd = {
+      '@context': 'https://schema.org',
+      '@type': 'Product',
+      name: product.name,
+      description: product.description || `${product.name} - Available at RIMSS`,
+      image: product.images && product.images.length > 0 ? product.images[0] : '',
+      sku: product.id,
+      mpn: product.id,
+      brand: {
+        '@type': 'Brand',
+        name: 'RIMSS'
+      },
+      offers: {
+        '@type': 'Offer',
+        url: `https://nagarro-rimss-27.web.app/product/${product.id}`,
+        priceCurrency: 'USD',
+        price: discountedPrice.toFixed(2),
+        priceValidUntil: new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().split('T')[0],
+        itemCondition: 'https://schema.org/NewCondition',
+        availability: product.stock && product.stock > 0 
+          ? 'https://schema.org/InStock' 
+          : 'https://schema.org/OutOfStock'
+      }
+    };
+
+    return JSON.stringify(jsonLd);
+  };
   
   if (loading) {
     return (
       <Box pt="72px" pb={8} minH="calc(100vh - 64px)">
+        <SEO 
+          title="Loading Product | RIMSS"
+          description="Loading product details..."
+        />
         <Container maxW="container.xl">
           <Center py={10}>
             <VStack spacing={4}>
@@ -117,6 +157,10 @@ const ProductDetailsPage = () => {
   if (error || !product) {
     return (
       <Box pt="72px" pb={8} minH="calc(100vh - 64px)">
+        <SEO 
+          title="Product Not Found | RIMSS"
+          description="The requested product could not be found."
+        />
         <Container maxW="container.xl">
           <Center py={10}>
             <VStack spacing={4}>
@@ -137,131 +181,157 @@ const ProductDetailsPage = () => {
   
   return (
     <Box pt="72px" pb={8} minH="calc(100vh - 64px)">
+      <SEO 
+        title={`${product.name} | RIMSS`}
+        description={product.description || `${product.name} - Shop now at RIMSS`}
+        canonical={`/product/${product.id}`}
+        ogType="product"
+        ogImage={product.images && product.images.length > 0 ? product.images[0] : ''}
+        keywords={`${product.name}, ${product.category || ''}, online shopping, RIMSS`}
+      >
+        {/* Add JSON-LD structured data */}
+        <script type="application/ld+json">
+          {generateProductJsonLd(product)}
+        </script>
+      </SEO>
       <Container maxW="container.xl">
         {/* Breadcrumb */}
         <Breadcrumb mb={6} fontSize="sm" color="gray.500">
           <BreadcrumbItem>
             <BreadcrumbLink href="/">Home</BreadcrumbLink>
           </BreadcrumbItem>
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/search">Products</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbItem>
-            <BreadcrumbLink href={`/search?category=${product.category}`}>
-              {product.category ? product.category.charAt(0).toUpperCase() + product.category.slice(1) : 'All'}
-            </BreadcrumbLink>
-          </BreadcrumbItem>
+          {product.category && (
+            <BreadcrumbItem>
+              <BreadcrumbLink href={`/search?category=${product.category}`}>
+                {product.category}
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+          )}
           <BreadcrumbItem isCurrentPage>
-            <Text>{product.name}</Text>
+            <BreadcrumbLink href={`/product/${product.id}`}>{product.name}</BreadcrumbLink>
           </BreadcrumbItem>
         </Breadcrumb>
         
-        <Grid 
-          templateColumns={{ base: '1fr', md: '1fr 1fr' }} 
-          gap={8}
-          bg={bgColor}
-          p={6}
-          borderRadius="xl"
-          borderWidth="1px"
-          borderColor={borderColor}
-        >
+        <Grid templateColumns={{ base: '1fr', md: '1fr 1fr' }} gap={8}>
           {/* Product Images */}
           <GridItem>
-            <Box position="relative">
-              <Image 
-                src={product.images[currentImageIndex]} 
-                alt={product.name} 
-                borderRadius="lg"
-                width="100%"
-                height="500px"
-                objectFit="cover"
-              />
+            <Box 
+              borderWidth="1px" 
+              borderRadius="lg" 
+              overflow="hidden" 
+              bg={bgColor} 
+              borderColor={borderColor}
+              position="relative"
+            >
               {product.discount && (
-                <Badge
-                  position="absolute"
-                  top={4}
-                  right={4}
-                  colorScheme="red"
-                  fontSize="md"
-                  px={3}
+                <Badge 
+                  colorScheme="red" 
+                  position="absolute" 
+                  top="10px" 
+                  right="10px" 
+                  zIndex="1"
+                  fontSize="0.9em"
+                  px={2}
                   py={1}
                   borderRadius="md"
                 >
                   {product.discount}% OFF
                 </Badge>
               )}
-              {product.images.length > 1 && (
-                <>
-                  <IconButton
-                    aria-label="Previous image"
-                    icon={<ChevronLeftIcon />}
-                    position="absolute"
-                    left={2}
-                    top="50%"
-                    transform="translateY(-50%)"
-                    colorScheme="blackAlpha"
-                    onClick={handlePreviousImage}
-                  />
-                  <IconButton
-                    aria-label="Next image"
-                    icon={<ChevronRightIcon />}
-                    position="absolute"
-                    right={2}
-                    top="50%"
-                    transform="translateY(-50%)"
-                    colorScheme="blackAlpha"
-                    onClick={handleNextImage}
-                  />
-                </>
-              )}
-            </Box>
-            
-            {/* Thumbnail Gallery */}
-            {product.images.length > 1 && (
-              <Flex mt={4} gap={2} overflowX="auto" pb={2}>
-                {product.images.map((image, index) => (
-                  <Box 
-                    key={index}
-                    cursor="pointer"
-                    borderWidth={index === currentImageIndex ? "2px" : "1px"}
-                    borderColor={index === currentImageIndex ? "blue.500" : borderColor}
-                    borderRadius="md"
-                    overflow="hidden"
-                    onClick={() => setCurrentImageIndex(index)}
-                  >
+              
+              <Box position="relative" height={{ base: '300px', sm: '400px', md: '500px' }}>
+                {product.images && product.images.length > 0 ? (
+                  <>
                     <Image 
-                      src={image} 
-                      alt={`${product.name} - thumbnail ${index + 1}`}
+                      src={product.images[currentImageIndex]} 
+                      alt={`${product.name} - Image ${currentImageIndex + 1}`}
+                      objectFit="contain"
+                      width="100%"
+                      height="100%"
+                    />
+                    
+                    {product.images.length > 1 && (
+                      <>
+                        <IconButton
+                          aria-label="Previous image"
+                          icon={<ChevronLeftIcon />}
+                          position="absolute"
+                          left="10px"
+                          top="50%"
+                          transform="translateY(-50%)"
+                          onClick={handlePreviousImage}
+                          borderRadius="full"
+                          bg="white"
+                          opacity="0.8"
+                          _hover={{ opacity: 1 }}
+                        />
+                        <IconButton
+                          aria-label="Next image"
+                          icon={<ChevronRightIcon />}
+                          position="absolute"
+                          right="10px"
+                          top="50%"
+                          transform="translateY(-50%)"
+                          onClick={handleNextImage}
+                          borderRadius="full"
+                          bg="white"
+                          opacity="0.8"
+                          _hover={{ opacity: 1 }}
+                        />
+                      </>
+                    )}
+                  </>
+                ) : (
+                  <Center height="100%">
+                    <Text>No image available</Text>
+                  </Center>
+                )}
+              </Box>
+              
+              {/* Thumbnail Navigation */}
+              {product.images && product.images.length > 1 && (
+                <Flex mt={4} justify="center" wrap="wrap">
+                  {product.images.map((img, index) => (
+                    <Box 
+                      key={index}
+                      as="button"
                       width="60px"
                       height="60px"
-                      objectFit="cover"
-                    />
-                  </Box>
-                ))}
-              </Flex>
-            )}
+                      m={1}
+                      borderWidth="1px"
+                      borderRadius="md"
+                      borderColor={index === currentImageIndex ? 'blue.500' : borderColor}
+                      overflow="hidden"
+                      onClick={() => setCurrentImageIndex(index)}
+                    >
+                      <Image 
+                        src={img} 
+                        alt={`${product.name} thumbnail ${index + 1}`}
+                        objectFit="cover"
+                        width="100%"
+                        height="100%"
+                      />
+                    </Box>
+                  ))}
+                </Flex>
+              )}
+            </Box>
           </GridItem>
           
           {/* Product Details */}
           <GridItem>
             <VStack align="stretch" spacing={4}>
               <Box>
-                <HStack>
-                  <Badge colorScheme="green" fontSize="sm">
-                    {product.category ? product.category.toUpperCase() : 'PRODUCT'}
-                  </Badge>
-                  {product.stock && product.stock < 10 && (
-                    <Badge colorScheme="orange" fontSize="sm">
-                      Only {product.stock} left
-                    </Badge>
-                  )}
-                </HStack>
+                <Text color="gray.500" fontWeight="medium">RIMSS</Text>
                 <Heading size="xl" mt={2}>{product.name}</Heading>
                 
-                {/* Rating placeholder - would be dynamic in a real app */}
+                {/* Rating */}
                 <HStack mt={2}>
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <StarIcon key={star} color={star <= 4 ? "yellow.400" : "gray.300"} />
+                  {Array(5).fill('').map((_, i) => (
+                    <StarIcon
+                      key={i}
+                      color={i < 4 ? 'yellow.400' : 'gray.300'}
+                    />
                   ))}
                   <Text fontSize="sm" color="gray.500">(24 reviews)</Text>
                 </HStack>

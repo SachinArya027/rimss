@@ -32,6 +32,7 @@ import { SearchIcon } from '@chakra-ui/icons';
 import { searchProducts } from '../firebase/firestoreService';
 import type { Product, ProductSearchFilters } from '../firebase/firestoreService';
 import SearchResults from '../components/SearchResults';
+import SEO from '../components/SEO';
 
 // Available categories and colors for filtering
 const categories = ['men', 'women', 'accessories', 'all'];
@@ -69,6 +70,86 @@ const SearchPage = () => {
   const pageBgColor = useColorModeValue('gray.50', 'gray.900');
   const textColor = useColorModeValue('gray.600', 'gray.300');
   const headingColor = useColorModeValue('gray.800', 'white');
+
+  // Generate SEO title and description based on search parameters
+  const generateSEOTitle = () => {
+    let title = 'Shop Products';
+    
+    if (filters.searchTerm) {
+      title = `${filters.searchTerm} - Search Results`;
+    } else if (filters.category && filters.category !== 'all') {
+      title = `${filters.category.charAt(0).toUpperCase() + filters.category.slice(1)} Products`;
+      
+      if (filters.color && filters.color !== 'all') {
+        title = `${filters.color.charAt(0).toUpperCase() + filters.color.slice(1)} ${title}`;
+      }
+    } else if (filters.color && filters.color !== 'all') {
+      title = `${filters.color.charAt(0).toUpperCase() + filters.color.slice(1)} Products`;
+    }
+    
+    if (filters.discountedOnly) {
+      title = `Discounted ${title}`;
+    }
+    
+    return title;
+  };
+  
+  const generateSEODescription = () => {
+    let description = 'Browse our collection of high-quality products at RIMSS.';
+    
+    if (filters.searchTerm) {
+      description = `Browse results for "${filters.searchTerm}" at RIMSS. Find the best products matching your search.`;
+    } else {
+      const parts = [];
+      
+      if (filters.category && filters.category !== 'all') {
+        parts.push(`${filters.category.charAt(0).toUpperCase() + filters.category.slice(1)}`);
+      }
+      
+      if (filters.color && filters.color !== 'all') {
+        parts.push(`${filters.color.charAt(0).toUpperCase() + filters.color.slice(1)}`);
+      }
+      
+      if (filters.discountedOnly) {
+        parts.push('Discounted');
+      }
+      
+      if (parts.length > 0) {
+        description = `Shop ${parts.join(' ')} products at RIMSS. Find the perfect items that match your style and budget.`;
+      }
+    }
+    
+    return description;
+  };
+
+  // Generate canonical URL based on filters
+  const generateCanonicalUrl = () => {
+    let url = '/search';
+    const params = new URLSearchParams();
+    
+    if (filters.searchTerm) {
+      params.append('q', filters.searchTerm);
+    }
+    
+    if (filters.category && filters.category !== 'all') {
+      params.append('category', filters.category);
+    }
+    
+    if (filters.color && filters.color !== 'all') {
+      params.append('color', filters.color);
+    }
+    
+    if (filters.discountedOnly) {
+      params.append('discounted', 'true');
+    }
+    
+    const paramString = params.toString();
+    if (paramString) {
+      url += `?${paramString}`;
+    }
+    
+    return url;
+  };
 
   // Update filters when URL parameters change
   useEffect(() => {
@@ -135,82 +216,95 @@ const SearchPage = () => {
   // Perform search with current filters
   const performSearch = async (searchFilters?: ProductSearchFilters) => {
     setLoading(true);
-    setSearched(true);
     
     try {
       // Use provided filters or current state
       const filtersToUse = searchFilters || filters;
       
-      // Create a clean filter object without 'all' values and use current priceRange state
-      const cleanFilters: ProductSearchFilters = {
-        ...filtersToUse,
-        category: filtersToUse.category === 'all' ? undefined : filtersToUse.category,
-        color: filtersToUse.color === 'all' ? undefined : filtersToUse.color,
-        // Use the current priceRange values if no searchFilters are provided
-        minPrice: searchFilters ? filtersToUse.minPrice : priceRange[0],
-        maxPrice: searchFilters ? filtersToUse.maxPrice : priceRange[1]
-      };
+      // Update URL parameters
+      const params = new URLSearchParams();
       
-      // Only update URL if filters were not provided (meaning this was triggered by a user action, not URL change)
-      if (!searchFilters) {
-        // Update URL search parameters
-        const newSearchParams = new URLSearchParams();
-        if (filtersToUse.searchTerm) newSearchParams.set('q', filtersToUse.searchTerm);
-        if (filtersToUse.category && filtersToUse.category !== 'all') newSearchParams.set('category', filtersToUse.category);
-        if (filtersToUse.color && filtersToUse.color !== 'all') newSearchParams.set('color', filtersToUse.color);
-        if (filtersToUse.discountedOnly) newSearchParams.set('discounted', 'true');
-        // Use priceRange state for the URL parameters
-        if (priceRange[0] !== 0) newSearchParams.set('minPrice', priceRange[0].toString());
-        if (priceRange[1] !== 500) newSearchParams.set('maxPrice', priceRange[1].toString());
-        
-        setSearchParams(newSearchParams);
+      if (filtersToUse.searchTerm) {
+        params.append('q', filtersToUse.searchTerm);
       }
       
-      const results = await searchProducts(cleanFilters);
+      if (filtersToUse.category && filtersToUse.category !== 'all') {
+        params.append('category', filtersToUse.category);
+      }
+      
+      if (filtersToUse.color && filtersToUse.color !== 'all') {
+        params.append('color', filtersToUse.color);
+      }
+      
+      if (filtersToUse.discountedOnly) {
+        params.append('discounted', 'true');
+      }
+      
+      if (filtersToUse.minPrice !== undefined && filtersToUse.minPrice !== 0) {
+        params.append('minPrice', filtersToUse.minPrice.toString());
+      }
+      
+      if (filtersToUse.maxPrice !== undefined && filtersToUse.maxPrice !== 500) {
+        params.append('maxPrice', filtersToUse.maxPrice.toString());
+      }
+      
+      setSearchParams(params);
+      
+      // Perform the search
+      const results = await searchProducts(filtersToUse);
       setProducts(results);
+      setSearched(true);
     } catch (error) {
       console.error('Error searching products:', error);
+      setProducts([]);
     } finally {
       setLoading(false);
-      if (isMobile) onClose();
+      if (isOpen) onClose(); // Close filter drawer on mobile after search
     }
   };
 
   // Handle clear filters
   const handleClearFilters = () => {
-    setFilters({
-      searchTerm: initialQuery,
+    // Reset filters to default
+    const defaultFilters: ProductSearchFilters = {
+      searchTerm: '',
       category: 'all',
       color: 'all',
       minPrice: 0,
       maxPrice: 500,
       discountedOnly: false
-    });
+    };
+    
+    // Reset price range
     setPriceRange([0, 500]);
     
-    // Only keep the search query in URL
-    const newSearchParams = new URLSearchParams();
-    if (initialQuery) newSearchParams.set('q', initialQuery);
-    setSearchParams(newSearchParams);
+    // Update filters state
+    setFilters(defaultFilters);
+    
+    // Clear URL parameters
+    setSearchParams({});
+    
+    // Reset search
+    setSearched(false);
+    setProducts([]);
   };
 
   // Render filters
   const FiltersContent = () => (
-    <VStack align="stretch" spacing={6} width="100%">
-      <Heading size="md">Filters</Heading>
+    <VStack spacing={6} align="stretch">
+      <Box>
+        <Heading size="md">Filters</Heading>
+      </Box>
       
       {/* Category Filter */}
       <Box>
-        <Box mb={2} fontWeight="medium">
-          Category
-        </Box>
+        <Text mb={2} fontWeight="medium">Category</Text>
         <Select 
           value={filters.category || 'all'} 
           onChange={handleCategoryChange}
-          bg={bgColor}
-          size="sm"
         >
-          {categories.map(category => (
+          <option value="all">All Categories</option>
+          {categories.filter(c => c !== 'all').map(category => (
             <option key={category} value={category}>
               {category.charAt(0).toUpperCase() + category.slice(1)}
             </option>
@@ -220,16 +314,13 @@ const SearchPage = () => {
       
       {/* Color Filter */}
       <Box>
-        <Box mb={2} fontWeight="medium">
-          Color
-        </Box>
+        <Text mb={2} fontWeight="medium">Color</Text>
         <Select 
           value={filters.color || 'all'} 
           onChange={handleColorChange}
-          bg={bgColor}
-          size="sm"
         >
-          {colors.map(color => (
+          <option value="all">All Colors</option>
+          {colors.filter(c => c !== 'all').map(color => (
             <option key={color} value={color}>
               {color.charAt(0).toUpperCase() + color.slice(1)}
             </option>
@@ -239,14 +330,13 @@ const SearchPage = () => {
       
       {/* Price Range Filter */}
       <Box>
-        <Box mb={2} fontWeight="medium">
-          Price Range
-        </Box>
-        <Text fontSize="sm" mb={2}>
-          ${priceRange[0]} - ${priceRange[1]}
-        </Text>
+        <Text mb={2} fontWeight="medium">Price Range</Text>
+        <Flex justify="space-between" mb={2}>
+          <Text fontSize="sm">${priceRange[0]}</Text>
+          <Text fontSize="sm">${priceRange[1]}</Text>
+        </Flex>
         <RangeSlider
-          aria-label={['min', 'max']}
+          aria-label={['min price', 'max price']}
           defaultValue={[0, 500]}
           min={0}
           max={500}
@@ -263,17 +353,18 @@ const SearchPage = () => {
         </RangeSlider>
       </Box>
       
+      {/* Discount Filter */}
       <Box>
         <Checkbox 
           isChecked={filters.discountedOnly} 
           onChange={handleDiscountChange}
-          colorScheme="blue"
         >
-          Discounted items only
+          Discounted Items Only
         </Checkbox>
       </Box>
       
-      <Flex gap={4} mt={2}>
+      {/* Action Buttons */}
+      <Flex gap={2} mt={2}>
         <Button 
           colorScheme="blue" 
           size="sm" 
@@ -297,6 +388,12 @@ const SearchPage = () => {
 
   return (
     <Box pt="72px" pb={8} bg={pageBgColor} minH="calc(100vh - 64px)">
+      <SEO 
+        title={generateSEOTitle()}
+        description={generateSEODescription()}
+        canonical={generateCanonicalUrl()}
+        keywords={`${filters.searchTerm || ''}, ${filters.category || ''}, ${filters.color || ''}, online shopping, products, RIMSS`}
+      />
       <Container maxW="container.xl">
         <Box mb={6}>
           <Heading size="lg" color={headingColor}>
