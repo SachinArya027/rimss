@@ -9,7 +9,7 @@ interface RunningBannerProps {
 }
 
 const RunningBanner: React.FC<RunningBannerProps> = ({
-  text = "🔥 Special Offers! Free Shipping on Orders Over $50! Shop Now! 🛒 Limited Time Deals! 🔥",
+  text = "🔥 Special Offers! Free Shipping on Orders Over $100! Shop Now! 🛒 Limited Time Deals! 🔥",
   speed = 30,
   backgroundColor,
   textColor,
