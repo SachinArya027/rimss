@@ -153,11 +153,11 @@ const CheckoutForm = ({ amount, onSuccess }: { amount: number; onSuccess: (payme
 // Main StripeCheckout component that wraps the form with Elements provider
 interface StripeCheckoutProps {
   amount: number;
-  onClose: () => void;
+  onCancel: () => void;
   onSuccess: (orderId: string) => void;
 }
 
-const StripeCheckout: React.FC<StripeCheckoutProps> = ({ amount, onClose, onSuccess }) => {
+const StripeCheckout: React.FC<StripeCheckoutProps> = ({ amount, onCancel, onSuccess }) => {
   const [stripePromise] = useState(() => getStripe());
   
   return (
@@ -177,7 +177,7 @@ const StripeCheckout: React.FC<StripeCheckoutProps> = ({ amount, onClose, onSucc
           </Box>
         )}
         
-        <Button variant="outline" onClick={onClose} isDisabled={false}>
+        <Button variant="outline" onClick={onCancel} isDisabled={false}>
           Cancel
         </Button>
       </VStack>

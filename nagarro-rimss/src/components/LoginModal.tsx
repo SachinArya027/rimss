@@ -28,9 +28,10 @@ import { useAuth } from '../contexts/useAuth';
 interface LoginModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onSuccess?: () => void;
 }
 
-const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
+const LoginModal = ({ isOpen, onClose, onSuccess }: LoginModalProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -79,6 +80,7 @@ const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
         isClosable: true,
       });
       onClose();
+      if (onSuccess) onSuccess();
     } catch (error: Error | unknown) {
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
       toast({
@@ -107,6 +109,7 @@ const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
         isClosable: true,
       });
       onClose();
+      if (onSuccess) onSuccess();
     } catch (error: Error | unknown) {
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
       toast({
@@ -135,6 +138,7 @@ const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
         isClosable: true,
       });
       onClose();
+      if (onSuccess) onSuccess();
     } catch (error: Error | unknown) {
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
       toast({
