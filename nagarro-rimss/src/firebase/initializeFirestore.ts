@@ -538,7 +538,7 @@ const sampleOffers = [
     description: "Get up to 50% off on our latest summer collection. Limited time offer!",
     images: ["https://images.unsplash.com/photo-1562886877-f12251816e01?auto=format&fit=crop&w=800&h=400"],
     discount: "50% OFF",
-    validUntil: "2025-06-15",
+    validUntil: "2025-12-15",
     category: "seasonal",
     isActive: true
   },
@@ -547,7 +547,7 @@ const sampleOffers = [
     description: "Discover our fresh new styles for the upcoming season. Shop now!",
     images: ["https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=800&h=400"],
     discount: "NEW",
-    validUntil: "2025-06-20",
+    validUntil: "2025-12-20",
     category: "new-arrivals",
     isActive: true
   },
@@ -556,7 +556,7 @@ const sampleOffers = [
     description: "Exclusive deals on our premium range. Luxury meets affordability.",
     images: ["https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=800&h=400"],
     discount: "30% OFF",
-    validUntil: "2025-06-12",
+    validUntil: "2025-12-12",
     category: "premium",
     isActive: true
   }
