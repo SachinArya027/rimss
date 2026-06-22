@@ -40,7 +40,6 @@ const ProductDetailsPage = () => {
   const toast = useToast();
   const { addToCart } = useCart();
   
-  // Colors
   const bgColor = useColorModeValue('white', 'gray.800');
   const borderColor = useColorModeValue('gray.200', 'gray.700');
   
@@ -100,9 +99,7 @@ const ProductDetailsPage = () => {
     }
   };
 
-  // Generate JSON-LD structured data for the product
   const generateProductJsonLd = (product: Product) => {
-    // Calculate discounted price if discount exists
     const discountedPrice = product.discount 
       ? product.price * (1 - product.discount / 100) 
       : product.price;
@@ -174,7 +171,6 @@ const ProductDetailsPage = () => {
     );
   }
   
-  // Calculate discounted price if discount exists
   const discountedPrice = product.discount 
     ? product.price * (1 - product.discount / 100) 
     : product.price;
@@ -189,13 +185,11 @@ const ProductDetailsPage = () => {
         ogImage={product.images && product.images.length > 0 ? product.images[0] : ''}
         keywords={`${product.name}, ${product.category || ''}, online shopping, RIMSS`}
       >
-        {/* Add JSON-LD structured data */}
         <script type="application/ld+json">
           {generateProductJsonLd(product)}
         </script>
       </SEO>
       <Container maxW="container.xl">
-        {/* Breadcrumb */}
         <Breadcrumb mb={6} fontSize="sm" color="gray.500">
           <BreadcrumbItem>
             <BreadcrumbLink href="/">Home</BreadcrumbLink>
@@ -213,7 +207,6 @@ const ProductDetailsPage = () => {
         </Breadcrumb>
         
         <Grid templateColumns={{ base: '1fr', md: '1fr 1fr' }} gap={8}>
-          {/* Product Images */}
           <GridItem>
             <Box 
               borderWidth="1px" 
@@ -288,7 +281,6 @@ const ProductDetailsPage = () => {
                 )}
               </Box>
               
-              {/* Thumbnail Navigation */}
               {product.images && product.images.length > 1 && (
                 <Flex mt={4} justify="center" wrap="wrap">
                   {product.images.map((img, index) => (
@@ -318,14 +310,12 @@ const ProductDetailsPage = () => {
             </Box>
           </GridItem>
           
-          {/* Product Details */}
           <GridItem>
             <VStack align="stretch" spacing={4}>
               <Box>
                 <Text color="gray.500" fontWeight="medium">RIMSS</Text>
                 <Heading size="xl" mt={2}>{product.name}</Heading>
                 
-                {/* Rating */}
                 <HStack mt={2}>
                   {Array(5).fill('').map((_, i) => (
                     <StarIcon
@@ -363,7 +353,6 @@ const ProductDetailsPage = () => {
               
               <Divider />
               
-              {/* Description */}
               <Box>
                 <Heading size="md" mb={2}>Description</Heading>
                 <Text color="gray.600">
@@ -371,7 +360,6 @@ const ProductDetailsPage = () => {
                 </Text>
               </Box>
               
-              {/* Color */}
               {product.color && (
                 <Box>
                   <Heading size="md" mb={2}>Color</Heading>
@@ -391,7 +379,6 @@ const ProductDetailsPage = () => {
               
               <Divider />
               
-              {/* Quantity Selector */}
               <Box>
                 <Heading size="md" mb={2}>Quantity</Heading>
                 <HStack>
@@ -416,7 +403,6 @@ const ProductDetailsPage = () => {
                 </HStack>
               </Box>
               
-              {/* Add to Cart Button */}
               <Button 
                 colorScheme="blue" 
                 size="lg" 
@@ -427,7 +413,6 @@ const ProductDetailsPage = () => {
                 {product.stock !== undefined && product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
               </Button>
               
-              {/* Additional Info */}
               <Box mt={4} p={4} bg="gray.50" borderRadius="md">
                 <Text fontSize="sm">
                   <strong>Free shipping</strong> on orders over $100

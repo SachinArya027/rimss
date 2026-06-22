@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Box, Container, Heading, SimpleGrid as ChakraGrid, Text, VStack as ChakraVStack, Image, Button, Spinner, Center, useToast, useColorModeValue } from '@chakra-ui/react';
+import { Box, Container, Heading, SimpleGrid, Text, VStack, Image, Button, Spinner, Center, useToast, useColorModeValue } from '@chakra-ui/react';
 import { ChevronRightIcon } from '@chakra-ui/icons';
 import { useNavigate } from 'react-router-dom';
 import { getActiveOffers } from '../firebase/firestoreService';
@@ -12,16 +12,13 @@ const LatestOffers = () => {
   const toast = useToast();
   const navigate = useNavigate();
   
-  // Theme colors
   const bgColor = useColorModeValue('gray.50', 'gray.900');
   const cardBgColor = useColorModeValue('white', 'gray.700');
   const textColor = useColorModeValue('gray.600', 'gray.300');
   const headingColor = useColorModeValue('gray.800', 'white');
   const borderColor = useColorModeValue('gray.200', 'gray.600');
   
-  // Handle clicking on an offer
   const handleOfferClick = (offer: Offer) => {
-    // Navigate to search page with category filter if available
     if (offer.category) {
       navigate(`/search?category=${encodeURIComponent(offer.category)}`);
     } else {
@@ -83,9 +80,9 @@ const LatestOffers = () => {
     <Box bg={bgColor} py={12}>
       <Container maxW="container.xl">
         <Heading mb={8} textAlign="center" fontSize="3xl" color={headingColor}>Latest Offers</Heading>
-        <ChakraGrid templateColumns={{ base: '1fr', md: 'repeat(3, 1fr)' }} gap={8}>
+        <SimpleGrid templateColumns={{ base: '1fr', md: 'repeat(3, 1fr)' }} gap={8}>
           {offers.map((offer) => (
-            <ChakraVStack
+            <VStack
               key={offer.id}
               bg={cardBgColor}
               p={0}
@@ -126,14 +123,14 @@ const LatestOffers = () => {
                   {offer.discount}
                 </Box>
               </Box>
-              <ChakraVStack p={6} gap={4} flex={1}>
-                <ChakraVStack alignItems="start" gap={2} flex={1} cursor="pointer" onClick={() => handleOfferClick(offer)}>
+              <VStack p={6} gap={4} flex={1}>
+                <VStack alignItems="start" gap={2} flex={1} cursor="pointer" onClick={() => handleOfferClick(offer)}>
                   <Heading size="md" color={headingColor}>{offer.title}</Heading>
                   <Text color={textColor}>{offer.description}</Text>
                   <Text color={textColor} fontSize="sm" mt="auto">
                     Valid until {new Date(offer.validUntil).toLocaleDateString()}
                   </Text>
-                </ChakraVStack>
+                </VStack>
                 <Button 
                   width="100%" 
                   rightIcon={<ChevronRightIcon />}
@@ -141,10 +138,10 @@ const LatestOffers = () => {
                 >
                   Shop Now
                 </Button>
-              </ChakraVStack>
-            </ChakraVStack>
+              </VStack>
+            </VStack>
           ))}
-        </ChakraGrid>
+        </SimpleGrid>
       </Container>
     </Box>
   );

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Box,
   Button,
@@ -18,9 +18,8 @@ import {
   useElements,
   Elements,
 } from '@stripe/react-stripe-js';
-import { getStripe, createPaymentIntent, handlePaymentSuccess } from '../services/stripeService';
+import { getStripe, handlePaymentSuccess } from '../services/stripeService';
 
-// Styles for the CardElement
 const cardElementOptions = {
   style: {
     base: {
@@ -36,67 +35,36 @@ const cardElementOptions = {
   },
 };
 
-// Checkout form component
 const CheckoutForm = ({ amount, onSuccess }: { amount: number; onSuccess: (paymentId: string) => void }) => {
   const stripe = useStripe();
   const elements = useElements();
   const [error, setError] = useState<string | null>(null);
   const [processing, setProcessing] = useState(false);
-  // We'll use this in a real implementation with actual Stripe API
-  // For now, we're just simulating the payment flow
-  const [, setClientSecret] = useState('');
   const toast = useToast();
-
-  // Get payment intent when component mounts
-  useEffect(() => {
-    const getPaymentIntent = async () => {
-      try {
-        const { clientSecret } = await createPaymentIntent(amount);
-        setClientSecret(clientSecret);
-      } catch (err) {
-        console.error('Error creating payment intent:', err);
-        setError('Failed to initialize payment. Please try again.');
-      }
-    };
-
-    getPaymentIntent();
-  }, [amount]);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
     if (!stripe || !elements) {
-      // Stripe.js has not loaded yet
       return;
     }
 
     setProcessing(true);
     setError(null);
 
-    // In a real implementation, you would use the actual client secret
-    // For this demo, we'll simulate a successful payment
     try {
-      // Get the CardElement
       const cardElement = elements.getElement(CardElement);
       
       if (!cardElement) {
         throw new Error('Card element not found');
       }
 
-      // Simulate payment confirmation
-      // Use mock implementation for demo purposes:
-      // const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
-      //   payment_method: { card: cardElement }
-      // });
-
-      // For demo purposes, we'll simulate a successful payment
       const mockPaymentIntent = {
         id: 'mock_payment_intent_' + Date.now(),
         status: 'succeeded',
         amount: amount,
       };
 
-      // Handle successful payment
       const { success } = await handlePaymentSuccess();
       
       if (success) {
@@ -108,7 +76,6 @@ const CheckoutForm = ({ amount, onSuccess }: { amount: number; onSuccess: (payme
           isClosable: true,
         });
         
-        // Pass the payment ID to the parent component
         onSuccess(mockPaymentIntent.id);
       }
     } catch (err) {
@@ -150,7 +117,6 @@ const CheckoutForm = ({ amount, onSuccess }: { amount: number; onSuccess: (payme
   );
 };
 
-// Main StripeCheckout component that wraps the form with Elements provider
 interface StripeCheckoutProps {
   amount: number;
   onCancel: () => void;
@@ -177,7 +143,7 @@ const StripeCheckout: React.FC<StripeCheckoutProps> = ({ amount, onCancel, onSuc
           </Box>
         )}
         
-        <Button variant="outline" onClick={onCancel} isDisabled={false}>
+        <Button variant="outline" onClick={onCancel}>
           Cancel
         </Button>
       </VStack>

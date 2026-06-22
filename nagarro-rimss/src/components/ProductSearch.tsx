@@ -12,7 +12,6 @@ import {
   RangeSliderFilledTrack,
   RangeSliderThumb,
   Text,
-
   Checkbox,
   InputGroup,
   InputLeftElement,
@@ -30,12 +29,10 @@ import type { ProductSearchFilters } from '../firebase/firestoreService';
 import type { Product } from '../firebase/firestoreService';
 import SearchResults from './SearchResults';
 
-// Available categories and colors for filtering
 const categories = ['men', 'women', 'accessories', 'all'];
 const colors = ['black', 'blue', 'brown', 'green', 'grey', 'red', 'white', 'all'];
 
 const ProductSearch = () => {
-  // Search filters state
   const [filters, setFilters] = useState<ProductSearchFilters>({
     searchTerm: '',
     category: 'all',
@@ -45,64 +42,20 @@ const ProductSearch = () => {
     discountedOnly: false
   });
 
-  // Results state
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
-  
-  // Filter panel state
   const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: true });
-  
-  // Price range state
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 500]);
   
-  // Background colors
   const bgColor = useColorModeValue('white', 'gray.800');
   const borderColor = useColorModeValue('gray.200', 'gray.700');
 
-  // Handle search term change
-  const handleSearchTermChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFilters(prev => ({ ...prev, searchTerm: e.target.value }));
-  };
-
-  // Handle category change
-  const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const category = e.target.value === 'all' ? undefined : e.target.value;
-    setFilters(prev => ({ ...prev, category }));
-  };
-
-  // Handle color change
-  const handleColorChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const color = e.target.value === 'all' ? undefined : e.target.value;
-    setFilters(prev => ({ ...prev, color }));
-  };
-
-  // Handle price range change
-  const handlePriceRangeChange = (newRange: number[]) => {
-    setPriceRange([newRange[0], newRange[1]]);
-  };
-
-  // Handle price range change end
-  const handlePriceRangeChangeEnd = (newRange: number[]) => {
-    setFilters(prev => ({
-      ...prev,
-      minPrice: newRange[0],
-      maxPrice: newRange[1]
-    }));
-  };
-
-  // Handle discount filter change
-  const handleDiscountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFilters(prev => ({ ...prev, discountedOnly: e.target.checked }));
-  };
-
-  // Handle search button click
   const handleSearch = async () => {
     setLoading(true);
     setSearched(true);
     
     try {
-      // Create a clean filter object without 'all' values
       const searchFilters: ProductSearchFilters = {
         ...filters,
         category: filters.category === 'all' ? undefined : filters.category,
@@ -118,7 +71,6 @@ const ProductSearch = () => {
     }
   };
 
-  // Handle clear filters
   const handleClearFilters = () => {
     setFilters({
       searchTerm: '',
@@ -139,7 +91,6 @@ const ProductSearch = () => {
         <Heading mb={6} fontSize="2xl">Product Search</Heading>
         
         <Box bg={bgColor} p={6} borderRadius="lg" boxShadow="sm" borderWidth="1px" borderColor={borderColor} mb={6}>
-          {/* Search Bar */}
           <Flex direction={{ base: 'column', md: 'row' }} mb={4} gap={4}>
             <InputGroup flex={1}>
               <InputLeftElement pointerEvents="none">
@@ -148,7 +99,7 @@ const ProductSearch = () => {
               <Input
                 placeholder="Search products..."
                 value={filters.searchTerm}
-                onChange={handleSearchTermChange}
+                onChange={(e) => setFilters(prev => ({ ...prev, searchTerm: e.target.value }))}
                 bg="white"
                 borderRadius="md"
               />
@@ -166,7 +117,6 @@ const ProductSearch = () => {
             </Button>
           </Flex>
           
-          {/* Filter Toggle */}
           <Flex justify="space-between" align="center" mb={2}>
             <Text fontWeight="medium">Filters</Text>
             <IconButton
@@ -180,15 +130,16 @@ const ProductSearch = () => {
           
           <Divider mb={4} />
           
-          {/* Filters */}
           <Collapse in={isOpen} animateOpacity>
             <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)', lg: 'repeat(4, 1fr)' }} gap={6}>
-              {/* Category Filter */}
               <GridItem>
                 <Text fontSize="sm" mb={2}>Category</Text>
                 <Select 
                   value={filters.category || 'all'} 
-                  onChange={handleCategoryChange}
+                  onChange={(e) => setFilters(prev => ({
+                    ...prev,
+                    category: e.target.value === 'all' ? undefined : e.target.value
+                  }))}
                   bg="white"
                 >
                   {categories.map(category => (
@@ -199,12 +150,14 @@ const ProductSearch = () => {
                 </Select>
               </GridItem>
               
-              {/* Color Filter */}
               <GridItem>
                 <Text fontSize="sm" mb={2}>Color</Text>
                 <Select 
                   value={filters.color || 'all'} 
-                  onChange={handleColorChange}
+                  onChange={(e) => setFilters(prev => ({
+                    ...prev,
+                    color: e.target.value === 'all' ? undefined : e.target.value
+                  }))}
                   bg="white"
                 >
                   {colors.map(color => (
@@ -215,7 +168,6 @@ const ProductSearch = () => {
                 </Select>
               </GridItem>
               
-              {/* Price Range Filter */}
               <GridItem colSpan={{ base: 1, md: 2 }}>
                 <Text fontSize="sm" mb={2}>Price Range: ${priceRange[0]} - ${priceRange[1]}</Text>
                 <RangeSlider
@@ -225,8 +177,12 @@ const ProductSearch = () => {
                   max={500}
                   step={10}
                   value={priceRange}
-                  onChange={handlePriceRangeChange}
-                  onChangeEnd={handlePriceRangeChangeEnd}
+                  onChange={(newRange) => setPriceRange([newRange[0], newRange[1]])}
+                  onChangeEnd={(newRange) => setFilters(prev => ({
+                    ...prev,
+                    minPrice: newRange[0],
+                    maxPrice: newRange[1]
+                  }))}
                 >
                   <RangeSliderTrack>
                     <RangeSliderFilledTrack />
@@ -240,24 +196,19 @@ const ProductSearch = () => {
             <Flex mt={6} justify="space-between" align="center">
               <Checkbox 
                 isChecked={filters.discountedOnly} 
-                onChange={handleDiscountChange}
+                onChange={(e) => setFilters(prev => ({ ...prev, discountedOnly: e.target.checked }))}
                 colorScheme="blue"
               >
                 Show discounted products only
               </Checkbox>
               
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={handleClearFilters}
-              >
+              <Button variant="outline" size="sm" onClick={handleClearFilters}>
                 Clear Filters
               </Button>
             </Flex>
           </Collapse>
         </Box>
         
-        {/* Search Results */}
         {searched && (
           <SearchResults 
             products={products} 

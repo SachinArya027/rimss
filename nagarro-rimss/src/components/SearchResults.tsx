@@ -39,7 +39,6 @@ const SearchResults = ({ products, loading, searchTerm }: SearchResultsProps) =>
   const { addToCart } = useCart();
   const toast = useToast();
   
-  // Handle adding product to cart
   const handleAddToCart = (product: Product) => {
     addToCart(product, 1);
     toast({
@@ -51,12 +50,6 @@ const SearchResults = ({ products, loading, searchTerm }: SearchResultsProps) =>
     });
   };
 
-  // Handle sort change
-  const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSortBy(e.target.value as SortOption);
-  };
-
-  // Sort products based on selected option
   const sortedProducts = [...products].sort((a, b) => {
     switch (sortBy) {
       case 'name_asc':
@@ -106,7 +99,7 @@ const SearchResults = ({ products, loading, searchTerm }: SearchResultsProps) =>
           <Text mr={2} fontSize="sm" color={textColor}>Sort by:</Text>
           <Select 
             value={sortBy} 
-            onChange={handleSortChange} 
+            onChange={(e) => setSortBy(e.target.value as SortOption)} 
             size="sm" 
             width="auto"
             bg={bgColor}

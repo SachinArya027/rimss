@@ -1,7 +1,6 @@
 import { createContext } from 'react';
 import type { User } from 'firebase/auth';
 
-// Define the AuthContextType
 export interface AuthContextType {
   currentUser: User | null;
   loading: boolean;
@@ -13,5 +12,4 @@ export interface AuthContextType {
   isPopupBlocked?: boolean;
 }
 
-// Create the context
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
