@@ -62,7 +62,6 @@ const Navbar = () => {
             <Link href="/" _hover={{ textDecoration: 'none' }} bg="white" padding={1} borderRadius={4}>
               <Image src={LogoSvg} alt="RIMSS Logo" height={{ base: "30px", md: "40px" }} />
             </Link>
-            Dev
           </Flex>
 
           <Flex display={{ base: 'none', lg: 'flex' }} alignItems="center" flex={1} mx={8} width="100%">
