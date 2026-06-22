@@ -12,7 +12,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: nagarro-rimss
+        working-directory: .
 
     steps:
       - name: Checkout repository
