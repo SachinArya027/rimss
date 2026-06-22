@@ -34,15 +34,16 @@ import type { Product, ProductSearchFilters } from '../firebase/firestoreService
 import SearchResults from '../components/SearchResults';
 import SEO from '../components/SEO';
 
-// Available categories and colors for filtering
 const categories = ['men', 'women', 'accessories', 'all'];
 const colors = ['black', 'blue', 'brown', 'green', 'grey', 'red', 'white', 'all'];
+
+const capitalize = (value?: string) =>
+  value && value !== 'all' ? value.charAt(0).toUpperCase() + value.slice(1) : '';
 
 const SearchPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const initialQuery = searchParams.get('q') || '';
   
-  // Search filters state
   const [filters, setFilters] = useState<ProductSearchFilters>({
     searchTerm: initialQuery,
     category: 'all',
@@ -52,106 +53,58 @@ const SearchPage = () => {
     discountedOnly: false
   });
 
-  // Results state
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
-  
-  // Price range state
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 500]);
-  
-  // Mobile drawer for filters
   const { isOpen, onOpen, onClose } = useDisclosure();
   const isMobile = useBreakpointValue({ base: true, md: false });
   
-  // Colors
   const bgColor = useColorModeValue('white', 'gray.800');
   const borderColor = useColorModeValue('gray.200', 'gray.700');
   const pageBgColor = useColorModeValue('gray.50', 'gray.900');
   const textColor = useColorModeValue('gray.600', 'gray.300');
   const headingColor = useColorModeValue('gray.800', 'white');
 
-  // Generate SEO title and description based on search parameters
-  const generateSEOTitle = () => {
+  const seoTitle = (() => {
     let title = 'Shop Products';
-    
     if (filters.searchTerm) {
       title = `${filters.searchTerm} - Search Results`;
     } else if (filters.category && filters.category !== 'all') {
-      title = `${filters.category.charAt(0).toUpperCase() + filters.category.slice(1)} Products`;
-      
+      title = `${capitalize(filters.category)} Products`;
       if (filters.color && filters.color !== 'all') {
-        title = `${filters.color.charAt(0).toUpperCase() + filters.color.slice(1)} ${title}`;
+        title = `${capitalize(filters.color)} ${title}`;
       }
     } else if (filters.color && filters.color !== 'all') {
-      title = `${filters.color.charAt(0).toUpperCase() + filters.color.slice(1)} Products`;
+      title = `${capitalize(filters.color)} Products`;
     }
-    
-    if (filters.discountedOnly) {
-      title = `Discounted ${title}`;
-    }
-    
-    return title;
-  };
-  
-  const generateSEODescription = () => {
-    let description = 'Browse our collection of high-quality products at RIMSS.';
-    
-    if (filters.searchTerm) {
-      description = `Browse results for "${filters.searchTerm}" at RIMSS. Find the best products matching your search.`;
-    } else {
-      const parts = [];
-      
-      if (filters.category && filters.category !== 'all') {
-        parts.push(`${filters.category.charAt(0).toUpperCase() + filters.category.slice(1)}`);
-      }
-      
-      if (filters.color && filters.color !== 'all') {
-        parts.push(`${filters.color.charAt(0).toUpperCase() + filters.color.slice(1)}`);
-      }
-      
-      if (filters.discountedOnly) {
-        parts.push('Discounted');
-      }
-      
-      if (parts.length > 0) {
-        description = `Shop ${parts.join(' ')} products at RIMSS. Find the perfect items that match your style and budget.`;
-      }
-    }
-    
-    return description;
-  };
+    return filters.discountedOnly ? `Discounted ${title}` : title;
+  })();
 
-  // Generate canonical URL based on filters
-  const generateCanonicalUrl = () => {
-    let url = '/search';
+  const seoDescription = (() => {
+    if (filters.searchTerm) {
+      return `Browse results for "${filters.searchTerm}" at RIMSS. Find the best products matching your search.`;
+    }
+    const parts = [
+      capitalize(filters.category),
+      capitalize(filters.color),
+      filters.discountedOnly ? 'Discounted' : '',
+    ].filter(Boolean);
+    return parts.length > 0
+      ? `Shop ${parts.join(' ')} products at RIMSS. Find the perfect items that match your style and budget.`
+      : 'Browse our collection of high-quality products at RIMSS.';
+  })();
+
+  const canonicalUrl = (() => {
     const params = new URLSearchParams();
-    
-    if (filters.searchTerm) {
-      params.append('q', filters.searchTerm);
-    }
-    
-    if (filters.category && filters.category !== 'all') {
-      params.append('category', filters.category);
-    }
-    
-    if (filters.color && filters.color !== 'all') {
-      params.append('color', filters.color);
-    }
-    
-    if (filters.discountedOnly) {
-      params.append('discounted', 'true');
-    }
-    
+    if (filters.searchTerm) params.append('q', filters.searchTerm);
+    if (filters.category && filters.category !== 'all') params.append('category', filters.category);
+    if (filters.color && filters.color !== 'all') params.append('color', filters.color);
+    if (filters.discountedOnly) params.append('discounted', 'true');
     const paramString = params.toString();
-    if (paramString) {
-      url += `?${paramString}`;
-    }
-    
-    return url;
-  };
+    return paramString ? `/search?${paramString}` : '/search';
+  })();
 
-  // Update filters when URL parameters change
   useEffect(() => {
     const queryParam = searchParams.get('q');
     const categoryParam = searchParams.get('category');
@@ -160,7 +113,6 @@ const SearchPage = () => {
     const minPriceParam = searchParams.get('minPrice');
     const maxPriceParam = searchParams.get('maxPrice');
     
-    // Build new filters object based on URL parameters
     const newFilters: ProductSearchFilters = {
       searchTerm: queryParam || '',
       category: categoryParam || 'all',
@@ -170,87 +122,48 @@ const SearchPage = () => {
       maxPrice: maxPriceParam ? parseInt(maxPriceParam) : 500
     };
     
-    // Update price range slider
     setPriceRange([newFilters.minPrice || 0, newFilters.maxPrice || 500]);
-    
-    // Update filters state
     setFilters(newFilters);
     
-    // Perform search with the new filters
     if (Object.values(newFilters).some(value => value !== undefined && value !== '' && value !== 'all' && value !== false)) {
-      performSearch(newFilters);
+      const runSearch = async () => {
+        setLoading(true);
+        try {
+          const results = await searchProducts(newFilters);
+          setProducts(results);
+          setSearched(true);
+        } catch (error) {
+          console.error('Error searching products:', error);
+          setProducts([]);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      runSearch();
     }
-  }, [searchParams]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [searchParams]);
 
-  // Handle category change
-  const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const category = e.target.value === 'all' ? undefined : e.target.value;
-    setFilters(prev => ({ ...prev, category }));
-  };
-
-  // Handle color change
-  const handleColorChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const color = e.target.value === 'all' ? undefined : e.target.value;
-    setFilters(prev => ({ ...prev, color }));
-  };
-
-  // Handle price range change
-  const handlePriceRangeChange = (newRange: number[]) => {
-    setPriceRange([newRange[0], newRange[1]]);
-  };
-
-  // Handle price range change end
-  const handlePriceRangeChangeEnd = (newRange: number[]) => {
-    setFilters(prev => ({
-      ...prev,
-      minPrice: newRange[0],
-      maxPrice: newRange[1]
-    }));
-  };
-
-  // Handle discount filter change
-  const handleDiscountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFilters(prev => ({ ...prev, discountedOnly: e.target.checked }));
-  };
-
-  // Perform search with current filters
   const performSearch = async (searchFilters?: ProductSearchFilters) => {
     setLoading(true);
     
     try {
-      // Use provided filters or current state
       const filtersToUse = searchFilters || filters;
-      
-      // Update URL parameters
       const params = new URLSearchParams();
       
-      if (filtersToUse.searchTerm) {
-        params.append('q', filtersToUse.searchTerm);
-      }
-      
-      if (filtersToUse.category && filtersToUse.category !== 'all') {
-        params.append('category', filtersToUse.category);
-      }
-      
-      if (filtersToUse.color && filtersToUse.color !== 'all') {
-        params.append('color', filtersToUse.color);
-      }
-      
-      if (filtersToUse.discountedOnly) {
-        params.append('discounted', 'true');
-      }
-      
+      if (filtersToUse.searchTerm) params.append('q', filtersToUse.searchTerm);
+      if (filtersToUse.category && filtersToUse.category !== 'all') params.append('category', filtersToUse.category);
+      if (filtersToUse.color && filtersToUse.color !== 'all') params.append('color', filtersToUse.color);
+      if (filtersToUse.discountedOnly) params.append('discounted', 'true');
       if (filtersToUse.minPrice !== undefined && filtersToUse.minPrice !== 0) {
         params.append('minPrice', filtersToUse.minPrice.toString());
       }
-      
       if (filtersToUse.maxPrice !== undefined && filtersToUse.maxPrice !== 500) {
         params.append('maxPrice', filtersToUse.maxPrice.toString());
       }
       
       setSearchParams(params);
       
-      // Perform the search
       const results = await searchProducts(filtersToUse);
       setProducts(results);
       setSearched(true);
@@ -259,13 +172,11 @@ const SearchPage = () => {
       setProducts([]);
     } finally {
       setLoading(false);
-      if (isOpen) onClose(); // Close filter drawer on mobile after search
+      if (isOpen) onClose();
     }
   };
 
-  // Handle clear filters
   const handleClearFilters = () => {
-    // Reset filters to default
     const defaultFilters: ProductSearchFilters = {
       searchTerm: '',
       category: 'all',
@@ -275,33 +186,27 @@ const SearchPage = () => {
       discountedOnly: false
     };
     
-    // Reset price range
     setPriceRange([0, 500]);
-    
-    // Update filters state
     setFilters(defaultFilters);
-    
-    // Clear URL parameters
     setSearchParams({});
-    
-    // Reset search
     setSearched(false);
     setProducts([]);
   };
 
-  // Render filters
   const FiltersContent = () => (
     <VStack spacing={6} align="stretch">
       <Box>
         <Heading size="md">Filters</Heading>
       </Box>
       
-      {/* Category Filter */}
       <Box>
         <Text mb={2} fontWeight="medium">Category</Text>
         <Select 
           value={filters.category || 'all'} 
-          onChange={handleCategoryChange}
+          onChange={(e) => setFilters(prev => ({
+            ...prev,
+            category: e.target.value === 'all' ? undefined : e.target.value
+          }))}
         >
           <option value="all">All Categories</option>
           {categories.filter(c => c !== 'all').map(category => (
@@ -312,12 +217,14 @@ const SearchPage = () => {
         </Select>
       </Box>
       
-      {/* Color Filter */}
       <Box>
         <Text mb={2} fontWeight="medium">Color</Text>
         <Select 
           value={filters.color || 'all'} 
-          onChange={handleColorChange}
+          onChange={(e) => setFilters(prev => ({
+            ...prev,
+            color: e.target.value === 'all' ? undefined : e.target.value
+          }))}
         >
           <option value="all">All Colors</option>
           {colors.filter(c => c !== 'all').map(color => (
@@ -328,7 +235,6 @@ const SearchPage = () => {
         </Select>
       </Box>
       
-      {/* Price Range Filter */}
       <Box>
         <Text mb={2} fontWeight="medium">Price Range</Text>
         <Flex justify="space-between" mb={2}>
@@ -342,8 +248,12 @@ const SearchPage = () => {
           max={500}
           step={10}
           value={priceRange}
-          onChange={handlePriceRangeChange}
-          onChangeEnd={handlePriceRangeChangeEnd}
+          onChange={(newRange) => setPriceRange([newRange[0], newRange[1]])}
+          onChangeEnd={(newRange) => setFilters(prev => ({
+            ...prev,
+            minPrice: newRange[0],
+            maxPrice: newRange[1]
+          }))}
         >
           <RangeSliderTrack>
             <RangeSliderFilledTrack />
@@ -353,17 +263,15 @@ const SearchPage = () => {
         </RangeSlider>
       </Box>
       
-      {/* Discount Filter */}
       <Box>
         <Checkbox 
           isChecked={filters.discountedOnly} 
-          onChange={handleDiscountChange}
+          onChange={(e) => setFilters(prev => ({ ...prev, discountedOnly: e.target.checked }))}
         >
           Discounted Items Only
         </Checkbox>
       </Box>
       
-      {/* Action Buttons */}
       <Flex gap={2} mt={2}>
         <Button 
           colorScheme="blue" 
@@ -389,9 +297,9 @@ const SearchPage = () => {
   return (
     <Box pt="72px" pb={8} bg={pageBgColor} minH="calc(100vh - 64px)">
       <SEO 
-        title={generateSEOTitle()}
-        description={generateSEODescription()}
-        canonical={generateCanonicalUrl()}
+        title={seoTitle}
+        description={seoDescription}
+        canonical={canonicalUrl}
         keywords={`${filters.searchTerm || ''}, ${filters.category || ''}, ${filters.color || ''}, online shopping, products, RIMSS`}
       />
       <Container maxW="container.xl">
@@ -406,7 +314,6 @@ const SearchPage = () => {
           )}
         </Box>
         
-        {/* Mobile Filter Button */}
         {isMobile && (
           <Flex mb={4} justify="flex-end">
             <Button 
@@ -422,7 +329,6 @@ const SearchPage = () => {
         )}
         
         <Grid templateColumns={{ base: '1fr', md: '250px 1fr' }} gap={8}>
-          {/* Filters - Desktop */}
           {!isMobile && (
             <GridItem>
               <Box 
@@ -439,7 +345,6 @@ const SearchPage = () => {
             </GridItem>
           )}
           
-          {/* Search Results */}
           <GridItem>
             {loading ? (
               <Center py={10}>
@@ -456,10 +361,7 @@ const SearchPage = () => {
                       <Text color={textColor}>
                         Use the filters to find products
                       </Text>
-                      <Button 
-                        colorScheme="blue" 
-                        onClick={() => performSearch()}
-                      >
+                      <Button colorScheme="blue" onClick={() => performSearch()}>
                         Show All Products
                       </Button>
                     </VStack>
@@ -488,7 +390,6 @@ const SearchPage = () => {
         </Grid>
       </Container>
       
-      {/* Mobile Filters Drawer */}
       <Drawer isOpen={isOpen} placement="left" onClose={onClose} size="xs">
         <DrawerOverlay />
         <DrawerContent>

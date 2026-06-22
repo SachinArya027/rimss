@@ -14,17 +14,14 @@ const RunningBanner: React.FC<RunningBannerProps> = ({
   backgroundColor,
   textColor,
 }) => {
-  // Get theme-aware colors
   const bgColor = useColorModeValue('blue.500', 'blue.700');
   const txtColor = useColorModeValue('white', 'white');
 
-  // Create a keyframe animation for the running text
   const marqueeAnimation = keyframes`
     0% { transform: translate3d(0, 0, 0); }
     100% { transform: translate3d(-50%, 0, 0); }
   `;
 
-  // Create a duplicate of the text to ensure continuous flow
   const repeatedText = `${text} ${text} ${text} ${text} ${text} ${text} ${text} ${text}`;
 
   return (
@@ -36,21 +33,13 @@ const RunningBanner: React.FC<RunningBannerProps> = ({
       position="relative"
     >
       <Box
-        css={{
-          '&::before': {
-            content: `"${repeatedText}"`,
-            display: 'inline-block',
-            whiteSpace: 'nowrap',
-            animation: `${marqueeAnimation} ${speed}s linear infinite`,
-            color: txtColor,
-            fontWeight: 'bold',
-          }
-        }}
+        display="inline-block"
+        whiteSpace="nowrap"
+        animation={`${marqueeAnimation} ${speed}s linear infinite`}
         color={textColor || txtColor}
         fontWeight="bold"
         fontSize="md"
         letterSpacing="0.5px"
-        whiteSpace="nowrap"
       >
         {repeatedText}
       </Box>

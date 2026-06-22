@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Box, Container, SimpleGrid as ChakraGrid, Image, Text, Badge, VStack as ChakraVStack, Heading, Button, Spinner, Center, useToast, Link, useColorModeValue } from '@chakra-ui/react';
+import { Box, Container, SimpleGrid, Image, Text, Badge, VStack, Heading, Button, Spinner, Center, useToast, Link, useColorModeValue } from '@chakra-ui/react';
 import { Link as RouterLink } from 'react-router-dom';
 import { getFeaturedProducts } from '../firebase/firestoreService';
 import type { Product } from '../firebase/firestoreService';
@@ -12,14 +12,12 @@ const FeaturedProducts = () => {
   const toast = useToast();
   const { addToCart } = useCart();
   
-  // Theme colors
   const bgColor = useColorModeValue('white', 'gray.800');
   const cardBgColor = useColorModeValue('white', 'gray.700');
   const textColor = useColorModeValue('gray.600', 'gray.300');
   const headingColor = useColorModeValue('gray.800', 'white');
   const borderColor = useColorModeValue('gray.200', 'gray.600');
   
-  // Handle adding product to cart
   const handleAddToCart = (product: Product) => {
     addToCart(product, 1);
     toast({
@@ -85,9 +83,9 @@ const FeaturedProducts = () => {
     <Box py={12} bg={bgColor}>
       <Container maxW="container.xl">
         <Heading mb={8} textAlign="center" fontSize="3xl" color={headingColor}>Featured Products</Heading>
-        <ChakraGrid templateColumns={{ base: '1fr', sm: '1fr', md: 'repeat(2, 1fr)', lg: 'repeat(4, 1fr)' }} gap={8}>
+        <SimpleGrid templateColumns={{ base: '1fr', sm: '1fr', md: 'repeat(2, 1fr)', lg: 'repeat(4, 1fr)' }} gap={8}>
           {products.map((product) => (
-            <ChakraVStack 
+            <VStack 
               key={product.id} 
               alignItems="start" 
               gap={3} 
@@ -148,9 +146,9 @@ const FeaturedProducts = () => {
               >
                 Add to Cart
               </Button>
-            </ChakraVStack>
+            </VStack>
           ))}
-        </ChakraGrid>
+        </SimpleGrid>
       </Container>
     </Box>
   );

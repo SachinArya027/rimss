@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 import { Box, Container, Text, Button, Flex, useInterval } from '@chakra-ui/react';
 import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons';
 import { useNavigate } from 'react-router-dom';
@@ -40,19 +40,10 @@ const HeroCarousel = () => {
   const [isHovered, setIsHovered] = useState(false);
   const navigate = useNavigate();
 
-  const nextSlide = useCallback(() => {
-    setCurrentSlide((prev) => (prev + 1) % slides.length);
-  }, []);
+  const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % slides.length);
+  const prevSlide = () => setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
+  const goToSlide = (index: number) => setCurrentSlide(index);
 
-  const prevSlide = useCallback(() => {
-    setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
-  }, []);
-
-  const goToSlide = useCallback((index: number) => {
-    setCurrentSlide(index);
-  }, []);
-
-  // Auto-advance slides every 5 seconds when not hovered
   useInterval(nextSlide, isHovered ? null : 5000);
 
   return (
@@ -63,7 +54,6 @@ const HeroCarousel = () => {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Slides Container */}
       <Flex
         position="relative"
         height="100%"
@@ -71,7 +61,6 @@ const HeroCarousel = () => {
         transform={`translateX(-${(currentSlide * 100) / slides.length}%)`}
         transition="transform 0.5s ease-in-out"
       >
-        {/* Slides */}
         {slides.map((slide) => (
           <Box
             key={slide.id}
@@ -80,7 +69,6 @@ const HeroCarousel = () => {
             position="relative"
             flexShrink={0}
           >
-            {/* Background Image */}
             <Box
               position="absolute"
               top={0}
@@ -101,7 +89,6 @@ const HeroCarousel = () => {
               }}
             />
 
-            {/* Content */}
             <Container maxW="container.xl" height="100%">
               <Flex
                 height="100%"
@@ -144,7 +131,6 @@ const HeroCarousel = () => {
         ))}
       </Flex>
 
-      {/* Navigation Arrows */}
       <Flex
         position="absolute"
         width="100%"
@@ -180,7 +166,6 @@ const HeroCarousel = () => {
         </Button>
       </Flex>
 
-      {/* Slide Indicators */}
       <Flex
         position="absolute"
         bottom={4}

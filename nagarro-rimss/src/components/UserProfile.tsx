@@ -28,7 +28,7 @@ const UserProfile = () => {
         duration: 3000,
         isClosable: true,
       });
-    } catch (error: Error | unknown) {
+    } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
       toast({
         title: 'Error logging out',
@@ -38,10 +38,6 @@ const UserProfile = () => {
         isClosable: true,
       });
     }
-  };
-
-  const handleNavigate = (path: string) => {
-    navigate(path);
   };
 
   if (!currentUser) return null;
@@ -67,9 +63,9 @@ const UserProfile = () => {
           <Text fontSize="sm" color="gray.600">{currentUser.email}</Text>
         </Flex>
         <Divider my={2} />
-        <MenuItem onClick={() => handleNavigate('/profile')}>My Profile</MenuItem>
-        <MenuItem onClick={() => handleNavigate('/orders')}>Order History</MenuItem>
-        <MenuItem onClick={() => handleNavigate('/wishlist')}>Wishlist</MenuItem>
+        <MenuItem onClick={() => navigate('/profile')}>My Profile</MenuItem>
+        <MenuItem onClick={() => navigate('/orders')}>Order History</MenuItem>
+        <MenuItem onClick={() => navigate('/wishlist')}>Wishlist</MenuItem>
         <Divider my={2} />
         <MenuItem onClick={handleLogout}>Sign Out</MenuItem>
       </MenuList>

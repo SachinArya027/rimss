@@ -47,7 +47,6 @@ const LoginModal = ({ isOpen, onClose, onSuccess }: LoginModalProps) => {
     setEmailError('');
     setPasswordError('');
 
-    // Email validation
     if (!email) {
       setEmailError('Email is required');
       isValid = false;
@@ -56,7 +55,6 @@ const LoginModal = ({ isOpen, onClose, onSuccess }: LoginModalProps) => {
       isValid = false;
     }
 
-    // Password validation
     if (!password) {
       setPasswordError('Password is required');
       isValid = false;
@@ -68,28 +66,36 @@ const LoginModal = ({ isOpen, onClose, onSuccess }: LoginModalProps) => {
     return isValid;
   };
 
+  const showError = (title: string, error: unknown) => {
+    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+    toast({
+      title,
+      description: errorMessage,
+      status: 'error',
+      duration: 5000,
+      isClosable: true,
+    });
+  };
+
+  const handleSuccess = (title: string, description: string) => {
+    toast({
+      title,
+      description,
+      status: 'success',
+      duration: 3000,
+      isClosable: true,
+    });
+    onClose();
+    onSuccess?.();
+  };
+
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
     try {
       await signInWithGoogle();
-      toast({
-        title: 'Login successful',
-        description: 'You have been logged in with Google',
-        status: 'success',
-        duration: 3000,
-        isClosable: true,
-      });
-      onClose();
-      if (onSuccess) onSuccess();
-    } catch (error: Error | unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-      toast({
-        title: 'Login failed',
-        description: errorMessage,
-        status: 'error',
-        duration: 5000,
-        isClosable: true,
-      });
+      handleSuccess('Login successful', 'You have been logged in with Google');
+    } catch (error) {
+      showError('Login failed', error);
     } finally {
       setIsLoading(false);
     }
@@ -101,24 +107,9 @@ const LoginModal = ({ isOpen, onClose, onSuccess }: LoginModalProps) => {
     setIsLoading(true);
     try {
       await loginWithEmail(email, password);
-      toast({
-        title: 'Login successful',
-        description: 'You have been logged in',
-        status: 'success',
-        duration: 3000,
-        isClosable: true,
-      });
-      onClose();
-      if (onSuccess) onSuccess();
-    } catch (error: Error | unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-      toast({
-        title: 'Login failed',
-        description: errorMessage,
-        status: 'error',
-        duration: 5000,
-        isClosable: true,
-      });
+      handleSuccess('Login successful', 'You have been logged in');
+    } catch (error) {
+      showError('Login failed', error);
     } finally {
       setIsLoading(false);
     }
@@ -130,24 +121,9 @@ const LoginModal = ({ isOpen, onClose, onSuccess }: LoginModalProps) => {
     setIsLoading(true);
     try {
       await registerWithEmail(email, password);
-      toast({
-        title: 'Account created',
-        description: 'Your account has been created and you are now logged in',
-        status: 'success',
-        duration: 3000,
-        isClosable: true,
-      });
-      onClose();
-      if (onSuccess) onSuccess();
-    } catch (error: Error | unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-      toast({
-        title: 'Sign up failed',
-        description: errorMessage,
-        status: 'error',
-        duration: 5000,
-        isClosable: true,
-      });
+      handleSuccess('Account created', 'Your account has been created and you are now logged in');
+    } catch (error) {
+      showError('Sign up failed', error);
     } finally {
       setIsLoading(false);
     }
@@ -155,10 +131,35 @@ const LoginModal = ({ isOpen, onClose, onSuccess }: LoginModalProps) => {
 
   const handleTabsChange = (index: number) => {
     setTabIndex(index);
-    // Clear form errors when switching tabs
     setEmailError('');
     setPasswordError('');
   };
+
+  const emailFormFields = (
+    <>
+      <FormControl isInvalid={!!emailError}>
+        <FormLabel>Email</FormLabel>
+        <Input 
+          type="email" 
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Enter your email"
+        />
+        {emailError && <FormErrorMessage>{emailError}</FormErrorMessage>}
+      </FormControl>
+      
+      <FormControl isInvalid={!!passwordError}>
+        <FormLabel>Password</FormLabel>
+        <Input 
+          type="password" 
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder={tabIndex === 0 ? 'Enter your password' : 'Create a password'}
+        />
+        {passwordError && <FormErrorMessage>{passwordError}</FormErrorMessage>}
+      </FormControl>
+    </>
+  );
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
@@ -180,28 +181,7 @@ const LoginModal = ({ isOpen, onClose, onSuccess }: LoginModalProps) => {
               <TabPanels>
                 <TabPanel>
                   <VStack spacing={4}>
-                    <FormControl isInvalid={!!emailError}>
-                      <FormLabel>Email</FormLabel>
-                      <Input 
-                        type="email" 
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="Enter your email"
-                      />
-                      {emailError && <FormErrorMessage>{emailError}</FormErrorMessage>}
-                    </FormControl>
-                    
-                    <FormControl isInvalid={!!passwordError}>
-                      <FormLabel>Password</FormLabel>
-                      <Input 
-                        type="password" 
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        placeholder="Enter your password"
-                      />
-                      {passwordError && <FormErrorMessage>{passwordError}</FormErrorMessage>}
-                    </FormControl>
-                    
+                    {emailFormFields}
                     <Button 
                       colorScheme="blue" 
                       width="100%" 
@@ -216,28 +196,7 @@ const LoginModal = ({ isOpen, onClose, onSuccess }: LoginModalProps) => {
                 
                 <TabPanel>
                   <VStack spacing={4}>
-                    <FormControl isInvalid={!!emailError}>
-                      <FormLabel>Email</FormLabel>
-                      <Input 
-                        type="email" 
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="Enter your email"
-                      />
-                      {emailError && <FormErrorMessage>{emailError}</FormErrorMessage>}
-                    </FormControl>
-                    
-                    <FormControl isInvalid={!!passwordError}>
-                      <FormLabel>Password</FormLabel>
-                      <Input 
-                        type="password" 
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        placeholder="Create a password"
-                      />
-                      {passwordError && <FormErrorMessage>{passwordError}</FormErrorMessage>}
-                    </FormControl>
-                    
+                    {emailFormFields}
                     <Button 
                       colorScheme="green" 
                       width="100%" 
@@ -261,7 +220,7 @@ const LoginModal = ({ isOpen, onClose, onSuccess }: LoginModalProps) => {
             <Button
               leftIcon={<FcGoogle />}
               onClick={handleGoogleSignIn}
-              isLoading={isLoading && tabIndex === -1}
+              isLoading={isLoading}
               loadingText="Signing in..."
               w="full"
               variant="outline"

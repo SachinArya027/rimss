@@ -7,68 +7,41 @@ interface FirestoreInitializerProps {
 }
 
 const FirestoreInitializer = ({ onInitialized }: FirestoreInitializerProps) => {
-  // React hooks must be called at the top level before any conditional returns
   const [isInitializing, setIsInitializing] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
   const toast = useToast();
-  
-  // Check if we're in development mode
   const isDevelopment = import.meta.env.MODE === 'development';
   
-  // If not in development mode, don't render anything
   if (!isDevelopment) {
     return null;
   }
 
-  const handleInitialize = async () => {
-    setIsInitializing(true);
+  const runAction = async (forceReset: boolean) => {
+    const setBusy = forceReset ? setIsResetting : setIsInitializing;
+    setBusy(true);
     try {
-      await initializeFirestore(false);
+      await initializeFirestore(forceReset);
       toast({
-        title: 'Database initialized',
-        description: 'Sample data has been added to Firestore',
+        title: forceReset ? 'Database reset' : 'Database initialized',
+        description: forceReset
+          ? 'Firestore data has been reset with fresh sample data'
+          : 'Sample data has been added to Firestore',
         status: 'success',
         duration: 5000,
         isClosable: true,
       });
-      if (onInitialized) onInitialized();
+      onInitialized?.();
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
       toast({
-        title: 'Initialization failed',
+        title: forceReset ? 'Reset failed' : 'Initialization failed',
         description: errorMessage,
         status: 'error',
         duration: 5000,
         isClosable: true,
       });
     } finally {
-      setIsInitializing(false);
-    }
-  };
-
-  const handleReset = async () => {
-    setIsResetting(true);
-    try {
-      await initializeFirestore(true);
-      toast({
-        title: 'Database reset',
-        description: 'Firestore data has been reset with fresh sample data',
-        status: 'success',
-        duration: 5000,
-        isClosable: true,
-      });
-      if (onInitialized) onInitialized();
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-      toast({
-        title: 'Reset failed',
-        description: errorMessage,
-        status: 'error',
-        duration: 5000,
-        isClosable: true,
-      });
-    } finally {
-      setIsResetting(false);
+      setBusy(false);
     }
   };
 
@@ -79,7 +52,7 @@ const FirestoreInitializer = ({ onInitialized }: FirestoreInitializerProps) => {
       <HStack spacing={4}>
         <Button 
           colorScheme="blue" 
-          onClick={handleInitialize} 
+          onClick={() => runAction(false)} 
           isDisabled={isInitializing || isResetting}
           leftIcon={isInitializing ? <Spinner size="sm" /> : undefined}
         >
@@ -87,7 +60,7 @@ const FirestoreInitializer = ({ onInitialized }: FirestoreInitializerProps) => {
         </Button>
         <Button 
           colorScheme="red" 
-          onClick={handleReset} 
+          onClick={() => runAction(true)} 
           isDisabled={isInitializing || isResetting}
           leftIcon={isResetting ? <Spinner size="sm" /> : undefined}
         >

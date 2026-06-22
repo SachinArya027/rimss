@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import {
   Box,
@@ -29,18 +29,14 @@ import type { Order } from '../services/orderService';
 import { formatDate } from '../utils/formatters';
 import SEO from '../components/SEO';
 
-// Helper function to format date
 const formatOrderDate = (dateString: string): string => {
   try {
-    const date = new Date(dateString);
-    return formatDate(date);
-  } catch (error) {
-    console.error('Error formatting date:', error);
+    return formatDate(new Date(dateString));
+  } catch {
     return dateString;
   }
 };
 
-// Helper function to get status color
 const getStatusColor = (status: string): string => {
   switch (status) {
     case 'completed':
@@ -56,27 +52,24 @@ const getStatusColor = (status: string): string => {
   }
 };
 
-const OrderHistoryPage: React.FC = () => {
+const OrderHistoryPage = () => {
   const [orders, setOrders] = useState<Order[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
   const { currentUser } = useAuth();
   const navigate = useNavigate();
   
-  // Colors
   const bgColor = useColorModeValue('white', 'gray.800');
   const borderColor = useColorModeValue('gray.200', 'gray.700');
   const hoverBgColor = useColorModeValue('gray.50', 'gray.700');
   
   useEffect(() => {
-    // Redirect to login if not authenticated
     if (!currentUser) {
       navigate('/login');
       return;
     }
     
-    // Fetch user orders
     const fetchOrders = async () => {
       try {
         setLoading(true);
@@ -94,7 +87,6 @@ const OrderHistoryPage: React.FC = () => {
     fetchOrders();
   }, [currentUser, navigate]);
   
-  // Render loading state
   if (loading) {
     return (
       <Box pt="72px" pb={8} minH="calc(100vh - 64px)">
@@ -128,7 +120,6 @@ const OrderHistoryPage: React.FC = () => {
     );
   }
   
-  // Render error state
   if (error) {
     return (
       <Box pt="72px" pb={8} minH="calc(100vh - 64px)">
@@ -152,7 +143,6 @@ const OrderHistoryPage: React.FC = () => {
     );
   }
   
-  // Render empty state
   if (orders.length === 0) {
     return (
       <Box pt="72px" pb={8} minH="calc(100vh - 64px)">
@@ -248,7 +238,6 @@ const OrderHistoryPage: React.FC = () => {
                 </h2>
                 <AccordionPanel pb={4}>
                   <VStack spacing={6} align="stretch">
-                    {/* Order Items */}
                     <Box>
                       <Heading size="sm" mb={3}>Items</Heading>
                       <SimpleGrid 
@@ -295,9 +284,7 @@ const OrderHistoryPage: React.FC = () => {
                     
                     <Divider />
                     
-                    {/* Order Summary */}
                     <Flex direction={{ base: 'column', md: 'row' }} gap={6}>
-                      {/* Shipping Address */}
                       <Box flex="1">
                         <Heading size="sm" mb={3}>Shipping Address</Heading>
                         <Box p={3} borderWidth="1px" borderRadius="md" borderColor={borderColor}>
@@ -313,7 +300,6 @@ const OrderHistoryPage: React.FC = () => {
                         </Box>
                       </Box>
                       
-                      {/* Payment Summary */}
                       <Box flex="1">
                         <Heading size="sm" mb={3}>Payment Summary</Heading>
                         <Box p={3} borderWidth="1px" borderRadius="md" borderColor={borderColor}>
