@@ -28,6 +28,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Run tests
+        run: npm test -- --run
+
       - name: Build
         run: npm run build
         env:
@@ -82,9 +85,10 @@ jobs:
           FIREBASE_SA_UNIVERSE_DOMAIN: ${{ secrets.FIREBASE_SA_UNIVERSE_DOMAIN }}
 
       - name: Deploy to Firebase Hosting
-        run: npx firebase-tools deploy --only hosting
+        run: npx firebase-tools deploy --only hosting --project "$FIREBASE_PROJECT_ID" --non-interactive
         env:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/firebase-sa.json
+          FIREBASE_PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
 
       - name: Cleanup credentials
         if: always()
